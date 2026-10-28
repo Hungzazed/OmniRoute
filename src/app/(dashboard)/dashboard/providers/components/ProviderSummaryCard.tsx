@@ -167,7 +167,7 @@ export default function ProviderSummaryCard({
   ].filter((category) => category.key !== "no-auth" || category.stat.total > 0);
 
   return (
-    <Card padding="sm">
+    <Card padding="sm" className="rounded-xl border border-border/50 shadow-xs bg-card">
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[160px]">
@@ -235,7 +235,7 @@ export default function ProviderSummaryCard({
           </Button>
         </div>
 
-        <div className="border-t border-border pt-3 flex flex-wrap items-center gap-2 [&>button]:grow [&>button]:justify-center sm:[&>button]:grow-0">
+        <div className="border-t border-border/40 pt-3 flex flex-wrap items-center gap-1.5 [&>button]:grow [&>button]:justify-center sm:[&>button]:grow-0">
           {categories.map((cat) => {
             const isActive =
               (cat.key === null && !activeCategory && !showFreeOnly) ||
@@ -267,7 +267,7 @@ export default function ProviderSummaryCard({
           })}
         </div>
 
-        <div className="border-t border-border pt-3 flex flex-wrap items-center gap-2 [&>button]:grow [&>button]:justify-center sm:[&>button]:grow-0">
+        <div className="border-t border-border/40 pt-3 flex flex-wrap items-center gap-1.5 [&>button]:grow [&>button]:justify-center sm:[&>button]:grow-0">
           <span className="text-[11px] font-medium uppercase tracking-wide text-text-muted mr-1">
             {providerText(t, "filterByMedia", "Media")}
           </span>

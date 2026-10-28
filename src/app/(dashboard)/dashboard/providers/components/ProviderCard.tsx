@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import { Badge, Button, Card, Modal, Toggle } from "@/shared/components";
 import ProviderTestSlideOver from "@/shared/components/ProviderTestSlideOver";
 import ProviderIcon from "@/shared/components/ProviderIcon";
+import { cn } from "@/shared/utils";
 import {
   isAnthropicCompatibleProvider,
   isClaudeCodeCompatibleProvider,
@@ -194,7 +195,7 @@ function WarningBadge({
       }}
       className="cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
     >
-      <Badge variant="warning" size="sm" icon="warning">
+      <Badge variant="warning" size="sm" icon="warning" className="rounded-full font-medium">
         {t("warningCount", { count })}
       </Badge>
     </span>
@@ -215,7 +216,7 @@ function getStatusDisplay(
   const displayedConnected = connected + (runtimeConnected && connected === 0 ? 1 : 0);
   if (displayedConnected > 0) {
     parts.push(
-      <Badge key="connected" variant="success" size="sm" dot>
+      <Badge key="connected" variant="success" size="sm" dot className="rounded-full font-medium">
         {t("connected", { count: displayedConnected })}
       </Badge>
     );
@@ -226,7 +227,7 @@ function getStatusDisplay(
       warningDetails ? (
         <WarningBadge key="warning" count={warning} t={t} details={warningDetails} />
       ) : (
-        <Badge key="warning" variant="warning" size="sm" dot>
+        <Badge key="warning" variant="warning" size="sm" dot className="rounded-full font-medium">
           {t("warningCount", { count: warning })}
         </Badge>
       )
@@ -237,7 +238,7 @@ function getStatusDisplay(
       ? t("errorCount", { count: error, code: errorCode })
       : t("errorCountNoCode", { count: error });
     parts.push(
-      <Badge key="error" variant="error" size="sm" dot>
+      <Badge key="error" variant="error" size="sm" dot className="rounded-full font-medium">
         {errText}
       </Badge>
     );
@@ -472,29 +473,23 @@ const ProviderCard = forwardRef<ProviderCardHandle, ProviderCardProps>(function 
       >
         <Card
           padding="xs"
-          className={`h-full flex flex-col hover:bg-bg-subtle transition-colors cursor-pointer ${
+          className={cn(
+            "h-full flex flex-col rounded-xl border transition-all duration-150 cursor-pointer bg-card shadow-xs hover:shadow-sm",
             isKimiPartner
-              ? // Kimi (Moonshot AI) official-partnership accent — official Kimi blue
-                // (#1783FF) border (2px, clearly legible) + a subtle whole-card tint
-                // (inset shadow — avoids clobbering Card's own bg-surface via
-                // twMerge) + soft outer glow. Kept identical in light/dark since it
-                // is a raw (non-token) brand hex, not a theme color. Keep the hex in
-                // sync with KIMI_BRAND_COLOR (featuredProviders.ts).
-                "border-2 border-[#1783FF]/70 hover:border-[#1783FF]/90 shadow-[inset_0_0_0_100px_rgba(23,131,255,0.035),0_4px_16px_-4px_rgba(23,131,255,0.45)]"
+              ? "border-[#1783FF]/50 hover:border-[#1783FF]/80"
               : isCheaperInferencePartner
-                ? // Cheaper Inference Open Source Friend accent — same construction in
-                  // its brand green (#31f889 = rgb(49,248,137)). Keep in sync with
-                  // CHEAPERINFERENCE_BRAND_COLOR (featuredProviders.ts).
-                  "border-2 border-[#31f889]/70 hover:border-[#31f889]/90 shadow-[inset_0_0_0_100px_rgba(49,248,137,0.035),0_4px_16px_-4px_rgba(49,248,137,0.45)]"
-                : "hover:border-primary/40"
-          } ${allDisabled ? "opacity-50" : ""} ${provider.deprecated ? "opacity-60" : ""}`}
+                ? "border-[#31f889]/50 hover:border-[#31f889]/80"
+                : "border-border/50 hover:border-border hover:bg-bg-subtle/50",
+            allDisabled && "opacity-50",
+            provider.deprecated && "opacity-60"
+          )}
         >
           <div className="flex flex-col gap-2 h-full">
             {/* Row 1 — Identity: icon + full name + risk/category indicators */}
             <div className="flex items-start gap-3 min-w-0">
               <div
-                className="size-9 rounded-lg flex items-center justify-center shrink-0"
-                style={{ backgroundColor: `${provider.color || "#64748b"}15` }}
+                className="size-9 rounded-lg flex items-center justify-center shrink-0 border border-border/30"
+                style={{ backgroundColor: `${provider.color || "#64748b"}10` }}
               >
                 {provider.iconUrl ? (
                   <ProviderIcon
@@ -519,7 +514,7 @@ const ProviderCard = forwardRef<ProviderCardHandle, ProviderCardProps>(function 
                   <ProviderIcon providerId={provider.id || providerId} size={24} type="color" />
                 )}
               </div>
-              <h3 className="text-sm font-semibold leading-snug flex-1 min-w-0">
+              <h3 className="text-sm font-semibold leading-snug flex-1 min-w-0 tracking-tight">
                 <span
                   className={`block break-words ${provider.deprecated ? "line-through opacity-60" : ""}`}
                   title={provider.name}
@@ -572,12 +567,16 @@ const ProviderCard = forwardRef<ProviderCardHandle, ProviderCardProps>(function 
                 {cheaperInferenceSupporterChip}
                 {openRouterPopularityChip}
                 {provider.serviceKinds?.map((k) => (
-                  <Badge key={k} size="sm">
+                  <Badge key={k} size="sm" className="rounded-full text-[10px] font-medium">
                     {kindLabel(k)}
                   </Badge>
                 ))}
                 {isCompatible && (
-                  <Badge variant="default" size="sm">
+                  <Badge
+                    variant="default"
+                    size="sm"
+                    className="rounded-full text-[10px] font-medium"
+                  >
                     {provider.apiType === "responses"
                       ? t("responses")
                       : kindLabel(COMPATIBLE_API_TYPE_KIND[provider.apiType ?? ""] ?? "") ||
@@ -585,12 +584,20 @@ const ProviderCard = forwardRef<ProviderCardHandle, ProviderCardProps>(function 
                   </Badge>
                 )}
                 {isCcCompatible && (
-                  <Badge variant="default" size="sm">
+                  <Badge
+                    variant="default"
+                    size="sm"
+                    className="rounded-full text-[10px] font-medium"
+                  >
                     CC
                   </Badge>
                 )}
                 {isAnthropicCompatible && (
-                  <Badge variant="default" size="sm">
+                  <Badge
+                    variant="default"
+                    size="sm"
+                    className="rounded-full text-[10px] font-medium"
+                  >
                     {t("messages")}
                   </Badge>
                 )}
@@ -598,10 +605,14 @@ const ProviderCard = forwardRef<ProviderCardHandle, ProviderCardProps>(function 
             )}
 
             {/* Row 3 — Footer: connection status + controls (toggle, test) */}
-            <div className="flex items-center justify-between gap-2 mt-auto pt-1.5 border-t border-border/40">
+            <div className="flex items-center justify-between gap-2 mt-auto pt-2 border-t border-border/40">
               <div className="flex items-center gap-1.5 text-xs flex-nowrap min-w-0 overflow-hidden">
                 {allDisabled ? (
-                  <Badge variant="default" size="sm">
+                  <Badge
+                    variant="default"
+                    size="sm"
+                    className="rounded-full text-[10px] font-medium"
+                  >
                     <span className="flex items-center gap-1">
                       <Icon name="pause_circle" size={12} />
                       {t("disabled")}
@@ -626,12 +637,12 @@ const ProviderCard = forwardRef<ProviderCardHandle, ProviderCardProps>(function 
                       devinAgenticAuthenticated
                     )}
                     {stats.expiryStatus === "expired" && (
-                      <Badge variant="error" size="sm" dot>
+                      <Badge variant="error" size="sm" dot className="rounded-full font-medium">
                         {t("expiredBadge")}
                       </Badge>
                     )}
                     {stats.expiryStatus === "expiring_soon" && (
-                      <Badge variant="warning" size="sm" dot>
+                      <Badge variant="warning" size="sm" dot className="rounded-full font-medium">
                         {t("expiringSoonBadge")}
                       </Badge>
                     )}
@@ -659,7 +670,7 @@ const ProviderCard = forwardRef<ProviderCardHandle, ProviderCardProps>(function 
                     icon="play_arrow"
                     onClick={handleTestClick}
                     title={tp("expandTest")}
-                    className="h-6 gap-0.5 px-2 text-[11px]"
+                    className="h-6 gap-0.5 px-2 text-[11px] font-medium rounded-md border-border/60 hover:bg-surface-muted"
                   >
                     {tp("testLabel")}
                   </Button>

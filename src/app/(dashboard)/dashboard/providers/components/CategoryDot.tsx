@@ -25,7 +25,7 @@ function Marker({
   return (
     <span
       className={cn(
-        "shrink-0",
+        "shrink-0 transition-opacity duration-150",
         size === "md" ? "size-2.5" : "size-2",
         slot.fillClass,
         CATEGORICAL_SHAPE_CLASSES[slot.shape]
@@ -57,5 +57,37 @@ export function CategoryDot({
       <Marker slot={slot} size={size} title={label} />
       {freeSlot && <Marker slot={freeSlot} size={size} title={freeLabel} />}
     </span>
+  );
+}
+
+export interface StatusDotProps {
+  status: "connected" | "warning" | "error" | "neutral" | "active";
+  size?: "sm" | "md";
+  className?: string;
+}
+
+/**
+ * Apple Minimalist Status Dot (xanh lá #34C759 / cam #FF9500 / đỏ #FF3B30 / neutral).
+ */
+export function StatusDot({ status, size = "sm", className }: StatusDotProps) {
+  const colorClass =
+    status === "connected" || status === "active"
+      ? "bg-success"
+      : status === "warning"
+        ? "bg-warning"
+        : status === "error"
+          ? "bg-error"
+          : "bg-text-muted/40";
+
+  return (
+    <span
+      className={cn(
+        "shrink-0 rounded-full inline-block",
+        size === "md" ? "size-2" : "size-1.5",
+        colorClass,
+        className
+      )}
+      aria-hidden="true"
+    />
   );
 }
