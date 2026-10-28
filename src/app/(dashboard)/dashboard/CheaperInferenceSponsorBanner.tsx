@@ -70,10 +70,10 @@ export default function CheaperInferenceSponsorBanner() {
     <div
       role="complementary"
       aria-label={t("title")}
-      className="mb-4 flex flex-col gap-3 rounded-lg border border-[#31f889]/30 bg-[#31f889]/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+      className="mb-3 flex flex-col gap-3 rounded-xl border border-border/50 bg-surface/80 backdrop-blur-md px-4 py-3 shadow-xs sm:flex-row sm:items-center sm:justify-between transition-all hover:border-border"
     >
       <div className="flex min-w-0 items-start gap-3">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#31f889]/10">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-surface-subtle border border-border/30">
           <ProviderIcon providerId="cheaperinference" size={24} type="color" />
         </div>
         <div className="min-w-0">
@@ -89,7 +89,7 @@ export default function CheaperInferenceSponsorBanner() {
             target="_blank"
             rel="noopener noreferrer"
             title={t("partnerLinkNote")}
-            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-[#31f889] px-3 py-1.5 text-xs font-semibold text-[#04170d] transition-colors hover:brightness-110"
+            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-accent px-3.5 py-1.5 text-xs font-semibold text-accent-foreground shadow-xs transition-all hover:opacity-90"
           >
             {t("cta")}
             <Icon name="open_in_new" size={14} />

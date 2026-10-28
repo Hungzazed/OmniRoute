@@ -67,10 +67,10 @@ export default function VscodeCopilotBanner() {
     <div
       role="complementary"
       aria-label={t("title")}
-      className="mb-4 flex flex-col gap-3 rounded-lg border border-[#007ACC]/30 bg-[#007ACC]/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+      className="mb-3 flex flex-col gap-3 rounded-xl border border-border/50 bg-surface/80 backdrop-blur-md px-4 py-3 shadow-xs sm:flex-row sm:items-center sm:justify-between transition-all hover:border-border"
     >
       <div className="flex min-w-0 items-start gap-3">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#007ACC]/10">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-surface-subtle border border-border/30">
           <Icon name="extension" size={22} className="text-[#007ACC]" />
         </div>
         <div className="min-w-0">
@@ -85,7 +85,7 @@ export default function VscodeCopilotBanner() {
             href={MARKETPLACE_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-[#007ACC] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:brightness-110"
+            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-accent px-3.5 py-1.5 text-xs font-semibold text-accent-foreground shadow-xs transition-all hover:opacity-90"
           >
             {t("cta")}
             <Icon name="open_in_new" size={14} />
