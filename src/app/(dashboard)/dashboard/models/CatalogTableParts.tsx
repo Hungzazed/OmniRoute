@@ -12,7 +12,7 @@ import { Button, Checkbox } from "@/shared/components";
 /** A column heading without sorting. */
 export function PlainHeading({ children }: { children: ReactNode }) {
   return (
-    <TableHead scope="col" className="px-4">
+    <TableHead scope="col" className="px-4 py-3 text-xs font-medium text-text-muted select-none">
       {children}
     </TableHead>
   );
@@ -22,7 +22,10 @@ export function PlainHeading({ children }: { children: ReactNode }) {
 export function ActionsHeading() {
   const t = useTranslations("modelCatalog");
   return (
-    <TableHead scope="col" className="px-4 text-right">
+    <TableHead
+      scope="col"
+      className="px-4 py-3 text-right text-xs font-medium text-text-muted select-none"
+    >
       {t("actions")}
     </TableHead>
   );
@@ -41,7 +44,7 @@ export function SelectAllHeaderCell({
   label: string;
 }) {
   return (
-    <TableHead scope="col" className="w-10 px-4">
+    <TableHead scope="col" className="w-10 px-4 py-3">
       {/* The adapter forwards `indeterminate` as the kit prop (not a ref callback: the kit
           effect would overwrite a ref-set value). */}
       <Checkbox
@@ -64,7 +67,7 @@ export function SelectRowCell({
   label: string;
 }) {
   return (
-    <TableCell className="w-10 px-4">
+    <TableCell className="w-10 px-4 py-3.5 align-middle">
       <Checkbox checked={checked} onChange={onToggle} aria-label={label} />
     </TableCell>
   );
@@ -87,19 +90,31 @@ export function CatalogTableFooter({
   const t = useTranslations("modelCatalog");
   return (
     <DataTableFooter
-      className="border-t border-border px-4 py-3"
+      className="border-t border-border/40 px-4 py-3 bg-surface/30"
       metadata={
-        <p className="text-sm text-text-muted" aria-live="polite">
+        <p className="text-xs text-text-muted" aria-live="polite">
           {children}
         </p>
       }
       pagination={
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-text-muted">{t("page", { page, pageCount })}</span>
-          <Button variant="outline" size="sm" disabled={page === 1} onClick={onPrevious}>
+        <div className="flex items-center gap-2.5">
+          <span className="text-xs text-text-muted">{t("page", { page, pageCount })}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page === 1}
+            onClick={onPrevious}
+            className="h-7 rounded-lg px-2.5 text-xs font-medium border-border/40 hover:bg-surface-muted transition-colors"
+          >
             {t("previous")}
           </Button>
-          <Button variant="outline" size="sm" disabled={page >= pageCount} onClick={onNext}>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page >= pageCount}
+            onClick={onNext}
+            className="h-7 rounded-lg px-2.5 text-xs font-medium border-border/40 hover:bg-surface-muted transition-colors"
+          >
             {t("next")}
           </Button>
         </div>

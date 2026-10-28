@@ -106,7 +106,7 @@ function TestResultSummary({ result }: { result: CatalogTestResult }) {
       title={errorDetail ?? `${label}${latencyStr ? ` (${latencyStr})` : ""}`}
     >
       <div className="flex items-center gap-1.5">
-        <Badge variant={variant} size="sm" dot>
+        <Badge variant={variant} size="sm" dot className="rounded-full text-[10px] font-medium">
           {label}
         </Badge>
         {latencyStr && (

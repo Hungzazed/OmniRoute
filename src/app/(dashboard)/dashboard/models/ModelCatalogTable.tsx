@@ -13,6 +13,7 @@ import {
 } from "@omniroute/ui-kit/table";
 import ProviderIcon from "@/shared/components/ProviderIcon";
 import { Badge, Button } from "@/shared/components";
+import { cn } from "@/shared/utils/cn";
 import CatalogTestBadge from "./CatalogTestBadge";
 import {
   ActionsHeading,
@@ -77,7 +78,7 @@ function SortableHeading({
   return (
     <SortableTableHead
       scope="col"
-      className="px-4"
+      className="px-4 py-3 text-xs font-medium text-text-muted hover:text-text-main transition-colors select-none"
       direction={active ? direction : undefined}
       defaultDirection="asc"
       onDirectionChange={() => onSort(field)}
@@ -122,8 +123,8 @@ function ModelCatalogTableHead({
 }) {
   const t = useTranslations("modelCatalog");
   return (
-    <TableHeader>
-      <TableRow>
+    <TableHeader className="bg-surface-muted/50 border-b border-border/40">
+      <TableRow className="border-b border-border/40 hover:!bg-transparent">
         {onToggleSelectAll && (
           <SelectAllHeaderCell
             checked={allOnPageSelected}
@@ -185,28 +186,34 @@ function ModelProviderCell({
 }) {
   const t = useTranslations("modelCatalog");
   return (
-    <TableCell className="h-auto px-4 py-3 align-top">
-      <div className="flex items-center gap-1.5">
+    <TableCell className="h-auto px-4 py-3.5 align-middle">
+      <div className="flex items-center gap-2">
         <ModelIdentity
           name={model.provider}
           provider={model.provider}
           logo={<ProviderIcon providerId={model.providerId} size={18} type="color" />}
+          className="font-medium text-sm text-text-main"
         />
         {providerHealth && providerHealth !== "healthy" && (
-          <Badge size="sm" variant={providerHealth === "degraded" ? "warning" : "error"} dot>
+          <Badge
+            size="sm"
+            variant={providerHealth === "degraded" ? "warning" : "error"}
+            dot
+            className="rounded-full text-[10px] font-medium"
+          >
             {providerHealth === "degraded" ? t("degraded") : t("down")}
           </Badge>
         )}
       </div>
-      <span className="mt-0.5 block font-mono text-xs text-text-muted">{model.providerId}</span>
+      <span className="mt-0.5 block font-mono text-[11px] text-text-muted">{model.providerId}</span>
     </TableCell>
   );
 }
 
 function ModelTypeCell({ model }: { model: CatalogModelRow }) {
   return (
-    <TableCell className="h-auto px-4 py-3 align-top text-text-main">
-      {humanize(model.type)}
+    <TableCell className="h-auto px-4 py-3.5 align-middle text-sm text-text-main">
+      <span className="font-medium">{humanize(model.type)}</span>
       {model.subtype && (
         <span className="mt-0.5 block text-xs text-text-muted">{humanize(model.subtype)}</span>
       )}
@@ -219,11 +226,16 @@ function ModelCapabilitiesCell({ capabilities }: { capabilities: string[] }) {
   const t = useTranslations("modelCatalog");
   const additionalCapabilities = capabilities.slice(3);
   return (
-    <TableCell className="h-auto max-w-xs whitespace-normal px-4 py-3 align-top">
+    <TableCell className="h-auto max-w-xs whitespace-normal px-4 py-3.5 align-middle">
       {capabilities.length > 0 ? (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap items-center gap-1">
           {capabilities.slice(0, 3).map((capability) => (
-            <Badge key={capability} size="sm" variant="default">
+            <Badge
+              key={capability}
+              size="sm"
+              variant="default"
+              className="rounded-full !bg-surface-muted !text-text-muted border border-border/40 text-[11px] font-normal px-2 py-0.5 transition-colors hover:!text-text-main"
+            >
               {capability}
             </Badge>
           ))}
@@ -235,14 +247,18 @@ function ModelCapabilitiesCell({ capabilities }: { capabilities: string[] }) {
               })}
               title={additionalCapabilities.join(", ")}
             >
-              <Badge size="sm" variant="default">
+              <Badge
+                size="sm"
+                variant="default"
+                className="rounded-full !bg-surface-muted !text-text-muted border border-border/40 text-[10px] font-medium px-1.5 py-0.5 cursor-help"
+              >
                 +{additionalCapabilities.length}
               </Badge>
             </span>
           )}
         </div>
       ) : (
-        <span className="text-text-muted" title={t("noCapabilities")}>
+        <span className="text-xs text-text-muted/60" title={t("noCapabilities")}>
           —
         </span>
       )}
@@ -253,20 +269,28 @@ function ModelCapabilitiesCell({ capabilities }: { capabilities: string[] }) {
 function ModelFlagsCell({ model, labels }: { model: CatalogModelRow; labels: ModelCatalogLabels }) {
   const t = useTranslations("modelCatalog");
   return (
-    <TableCell className="h-auto px-4 py-3 align-top">
-      <div className="flex flex-wrap gap-1.5">
+    <TableCell className="h-auto px-4 py-3.5 align-middle">
+      <div className="flex flex-wrap items-center gap-1">
         {model.custom === true && (
-          <Badge size="sm" variant="info">
+          <Badge
+            size="sm"
+            variant="info"
+            className="rounded-full text-[10px] font-medium px-2 py-0.5"
+          >
             {labels.custom || t("custom")}
           </Badge>
         )}
         {model.free === true && (
-          <Badge size="sm" variant="success">
+          <Badge
+            size="sm"
+            variant="success"
+            className="rounded-full text-[10px] font-medium px-2 py-0.5"
+          >
             {labels.free || t("free")}
           </Badge>
         )}
         {model.custom !== true && model.free !== true && (
-          <span className="text-text-muted" title={t("noFlags")}>
+          <span className="text-xs text-text-muted/60" title={t("noFlags")}>
             —
           </span>
         )}
@@ -309,7 +333,14 @@ function ModelCatalogTableRow({
     output: common("output"),
   });
   return (
-    <TableRow data-state={isSelected ? "selected" : undefined} className="align-top">
+    <TableRow
+      data-state={isSelected ? "selected" : undefined}
+      className={cn(
+        "align-middle border-b border-border/40 transition-colors duration-150",
+        "hover:!bg-surface-muted/50",
+        isSelected && "!bg-surface-muted"
+      )}
+    >
       {onToggleSelect && (
         <SelectRowCell
           checked={isSelected}
@@ -318,30 +349,33 @@ function ModelCatalogTableRow({
         />
       )}
       <ModelProviderCell model={model} providerHealth={providerHealthMap[model.providerId]} />
-      <TableCell className="h-auto max-w-sm whitespace-normal px-4 py-3 align-top">
-        <span className="block break-words font-medium text-text-main">{model.name}</span>
-        <span className="mt-0.5 block break-all font-mono text-xs text-text-muted">{model.id}</span>
+      <TableCell className="h-auto max-w-sm whitespace-normal px-4 py-3.5 align-middle">
+        <span className="block break-words font-medium text-sm text-text-main">{model.name}</span>
+        <span className="mt-0.5 block break-all font-mono text-[11px] text-text-muted">
+          {model.id}
+        </span>
       </TableCell>
       <ModelTypeCell model={model} />
       <ModelCapabilitiesCell capabilities={capabilities} />
-      <TableCell className="h-auto px-4 py-3 align-top tabular-nums text-text-main">
+      <TableCell className="h-auto px-4 py-3.5 align-middle font-mono text-xs tabular-nums text-text-main">
         {formatOptionalCount(model.context_length)}
       </TableCell>
-      <TableCell className="h-auto px-4 py-3 align-top tabular-nums text-text-main">
+      <TableCell className="h-auto px-4 py-3.5 align-middle font-mono text-xs tabular-nums text-text-main">
         {formatOptionalCount(model.max_output_tokens)}
       </TableCell>
       <ModelFlagsCell model={model} labels={labels} />
-      <TableCell className="h-auto px-4 py-3 align-top">
+      <TableCell className="h-auto px-4 py-3.5 align-middle">
         <CatalogTestBadge result={result} loading={isTesting} />
       </TableCell>
       {onTestModel && (
-        <TableCell className="h-auto px-4 py-3 text-right align-top">
+        <TableCell className="h-auto px-4 py-3.5 text-right align-middle">
           <Button
             variant="secondary"
             size="sm"
             disabled={isTesting || bulkRunning}
             onClick={() => onTestModel(model.providerId, model.id)}
             data-testid={`test-model-${model.id}`}
+            className="h-7 rounded-lg px-2.5 text-xs font-medium border border-border/40 hover:bg-surface-muted transition-colors"
           >
             {t("test")}
           </Button>
@@ -413,7 +447,7 @@ export default function ModelCatalogTable({
         <Table
           scrollbarLabel={t("tableRegion")}
           containerClassName="rounded-none border-0"
-          className="min-w-[1100px]"
+          className="min-w-[1100px] border-collapse"
         >
           <TableCaption className="sr-only">{t("tableCaption")}</TableCaption>
           <ModelCatalogTableHead

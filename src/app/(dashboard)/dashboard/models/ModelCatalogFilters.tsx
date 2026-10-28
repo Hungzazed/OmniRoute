@@ -157,7 +157,7 @@ export default function ModelCatalogFiltersComponent({
   const t = useTranslations("modelCatalog");
 
   return (
-    <div className="flex flex-col gap-4 border-b border-border p-4">
+    <div className="flex flex-col gap-3.5 border-b border-border/40 p-4 sm:p-5 bg-surface">
       <FilterSearchRow
         label={t("searchModels")}
         placeholder={t("searchModelsPlaceholder")}
@@ -169,7 +169,7 @@ export default function ModelCatalogFiltersComponent({
         onClear={onClear}
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         <ModelCatalogOptionFilters
           filters={filters}
           onChange={onChange}
