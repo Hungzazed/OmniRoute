@@ -60,7 +60,7 @@ export default function Icon({
     ...a11y,
     width: size,
     height: size,
-    strokeWidth: strokeWidth ?? (fill ? 2.5 : 2),
+    strokeWidth: strokeWidth ?? (fill ? 2 : 1.75),
     className: cn("oi-icon shrink-0 pointer-events-none", className),
     "data-icon": name,
     ...(mapped ? null : { "data-icon-missing": "true" as const }),

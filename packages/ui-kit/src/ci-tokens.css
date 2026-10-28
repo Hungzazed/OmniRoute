@@ -116,7 +116,7 @@
   /* The host app owns font loading. Instrument Serif should remain Regular. */
   --ci-font-ui:
     "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  --ci-font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --ci-font-display: var(--ci-font-ui);
   --ci-font-mono:
     "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 

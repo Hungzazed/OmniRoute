@@ -2709,7 +2709,7 @@
 .ci-wizard[data-variant="onboarding"] .ci-wizard__description { font-size:.875rem; line-height:1.6; }
 .ci-wizard[data-variant="onboarding"] .ci-wizard__body { padding:1.5rem 0 1.75rem; min-height:0; }
 .ci-wizard[data-variant="onboarding"] [data-wizard-blocked="true"] { opacity:.5; }
-.ci-card[data-surface="subtle"] { background:linear-gradient(110deg,var(--ci-color-surface-subtle),var(--ci-color-surface)); }
+.ci-card[data-surface="subtle"] { background:var(--ci-color-surface-subtle); }
 
 .ci-choice-card { --ci-choice-tone:var(--ci-color-surface-subtle); min-width:0; padding:.875rem 1rem; align-items:flex-start; background:linear-gradient(135deg,color-mix(in srgb,var(--ci-choice-tone) 8%,var(--ci-color-surface)),var(--ci-color-surface) 90%); }
 .ci-choice-card--neutral { --ci-choice-tone:var(--ci-color-text-muted); }
