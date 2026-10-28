@@ -190,15 +190,13 @@ const MINIMAL_SHOWN: ReadonlySet<HideableSidebarItemId> = new Set([
   "endpoints",
   "api-manager",
   "providers",
+  "model-catalog",
   "combos",
-  "analytics",
-  "costs",
   "logs",
-  "health",
+  "playground",
   "settings-general",
   "settings-sidebar",
   "docs",
-  "changelog",
 ]);
 
 const DEVELOPER_SHOWN: ReadonlySet<HideableSidebarItemId> = new Set([

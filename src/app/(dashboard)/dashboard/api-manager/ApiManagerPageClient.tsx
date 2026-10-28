@@ -1347,7 +1347,7 @@ export default function ApiManagerPageClient() {
             dismissLabel={tc("close")}
           />
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-text-muted">{t("apiKey")}</span>
+            <span className="text-xs font-medium text-text-muted">{t("key")}</span>
             <div className="flex items-center justify-between p-3 rounded-xl bg-surface-muted border border-border/50">
               <code className="font-mono text-xs text-text-main truncate select-all font-semibold">
                 {createdKey}

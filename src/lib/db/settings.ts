@@ -194,7 +194,7 @@ export async function getSettings() {
     hiddenSidebarGroupLabels: [],
     sidebarSectionOrder: [],
     sidebarItemOrder: {},
-    sidebarActivePreset: null,
+    sidebarActivePreset: "minimal",
     hideEndpointCloudflaredTunnel: false,
     hideEndpointTailscaleFunnel: false,
     hideEndpointNgrokTunnel: false,

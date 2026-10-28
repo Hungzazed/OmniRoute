@@ -793,11 +793,6 @@
       "count": 1
     }
   },
-  "src/app/(dashboard)/dashboard/settings/components/AppearanceTab.tsx": {
-    "@next/next/no-img-element": {
-      "count": 4
-    }
-  },
   "src/app/(dashboard)/dashboard/settings/components/AuthzSection.tsx": {
     "no-restricted-syntax": {
       "count": 1

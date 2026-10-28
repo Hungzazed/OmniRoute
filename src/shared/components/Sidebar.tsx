@@ -45,6 +45,8 @@ import {
   SIDEBAR_SECTION_ORDER_KEY,
   SIDEBAR_ITEM_ORDER_KEY,
   SIDEBAR_SECTIONS,
+  SIDEBAR_PRESETS,
+  SIDEBAR_PRESET_KEY,
   normalizeHiddenSidebarItems,
   normalizeHiddenSidebarSections,
   applySectionOrder,
@@ -78,6 +80,8 @@ const DEFAULT_EXPANDED: SidebarSectionId = "omni-proxy";
 const EXPANDED_SECTIONS_KEY = "sidebar-expanded-sections";
 const PINNED_SECTIONS_KEY = "sidebar-pinned-sections";
 const PINNED_ITEMS_KEY = "sidebar-pinned-items";
+const defaultMinimalPreset = SIDEBAR_PRESETS.find((p) => p.id === "minimal");
+const DEFAULT_HIDDEN_ITEMS = defaultMinimalPreset ? defaultMinimalPreset.hiddenItems : [];
 
 type SidebarProps = {
   onClose?: () => void;
@@ -156,7 +160,7 @@ export default function Sidebar({ isMacElectron = false }: SidebarProps) {
   const [isRestarting, setIsRestarting] = useState(false);
   const [isDisconnected, setIsDisconnected] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
-  const [hiddenSidebarItems, setHiddenSidebarItems] = useState<string[]>([]);
+  const [hiddenSidebarItems, setHiddenSidebarItems] = useState<string[]>(DEFAULT_HIDDEN_ITEMS);
   const [hiddenSidebarSections, setHiddenSidebarSections] = useState<SidebarSectionId[]>([]);
   const [hiddenSidebarGroupLabels, setHiddenSidebarGroupLabels] = useState<string[]>([]);
   // Feature-flag map for flag-gated items (e.g. "radar" -> RADAR_ENABLED).
@@ -226,7 +230,13 @@ export default function Sidebar({ isMacElectron = false }: SidebarProps) {
   useEffect(() => {
     const applySettings = (data) => {
       setShowDebug(data?.debugMode === true);
-      setHiddenSidebarItems(normalizeHiddenSidebarItems(data?.[HIDDEN_SIDEBAR_ITEMS_SETTING_KEY]));
+      const rawHidden = data?.[HIDDEN_SIDEBAR_ITEMS_SETTING_KEY];
+      const activePreset = data?.[SIDEBAR_PRESET_KEY];
+      if (Array.isArray(rawHidden) && (rawHidden.length > 0 || activePreset === "all")) {
+        setHiddenSidebarItems(normalizeHiddenSidebarItems(rawHidden));
+      } else {
+        setHiddenSidebarItems(DEFAULT_HIDDEN_ITEMS);
+      }
       setHiddenSidebarSections(
         normalizeHiddenSidebarSections(data?.[HIDDEN_SIDEBAR_SECTIONS_SETTING_KEY])
       );
@@ -523,9 +533,7 @@ export default function Sidebar({ isMacElectron = false }: SidebarProps) {
     const showPin = !collapsed && item.id !== "home";
     const title = item.subtitle ? `${item.label} — ${item.subtitle}` : item.label;
     // On the active (accent) row the subtitle inherits the accent ink; elsewhere it is muted.
-    const subtitleClassName = active
-      ? "truncate text-[10px]"
-      : "truncate text-[10px] text-text-muted";
+
     const content = (
       <>
         <Icon name={item.icon} size={18} fill={active} />
@@ -536,7 +544,6 @@ export default function Sidebar({ isMacElectron = false }: SidebarProps) {
             <span className={cn("truncate text-sm", active ? "font-semibold" : "font-medium")}>
               {item.label}
             </span>
-            
           </span>
         )}
       </>

@@ -126,7 +126,10 @@ export default function AppearanceTab() {
         <div className="rounded-xl border border-border/40 bg-card overflow-hidden shadow-none divide-y divide-border/40">
           {/* Visual Theme Selection Cards */}
           <div className="p-4 sm:p-5">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div
+              className="grid grid-cols-1 sm:grid-cols-3 gap-3.5"
+              aria-label={t("themeSelectionAria")}
+            >
               {/* Light Theme Card */}
               <button
                 type="button"
@@ -461,9 +464,7 @@ export default function AppearanceTab() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <p className="text-xs font-semibold text-foreground">{option.title}</p>
-                      {active && (
-                        <span className="size-1.5 rounded-full bg-accent" />
-                      )}
+                      {active && <span className="size-1.5 rounded-full bg-accent" />}
                     </div>
                     <p className="text-[11px] text-muted-foreground mt-0.5 leading-normal">
                       {option.description}
