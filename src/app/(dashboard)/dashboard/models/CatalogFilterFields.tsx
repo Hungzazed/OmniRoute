@@ -45,15 +45,21 @@ export function FilterSearchRow({
         placeholder={placeholder}
         value={query}
         onChange={(event) => onQueryChange(event.target.value)}
-        className="min-w-0 flex-1"
+        className="min-w-0 flex-1 [&_.ci-field__label]:!text-xs [&_.ci-field__label]:!font-medium [&_.ci-field__label]:!text-text-muted [&_.ci-input-shell]:!bg-surface-muted [&_.ci-input-shell]:!border-border/40 [&_.ci-input-shell]:!rounded-lg [&_.ci-input-shell]:!h-9 [&_.ci-input-shell]:!min-h-9 [&_.ci-input-shell]:focus-within:!border-border-strong [&_.ci-input-shell]:transition-all [&_.ci-input-shell__icon]:!text-text-muted"
+        inputClassName="!bg-transparent !text-sm placeholder:!text-text-muted/60"
       />
 
       <div className="flex items-center gap-3">
-        <span className="text-sm text-text-muted">
+        <span className="text-xs font-medium text-text-muted tabular-nums">
           {totalCount} {countLabel}
         </span>
         {hasActiveFilters && (
-          <Button variant="ghost" size="sm" onClick={onClear}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClear}
+            className="h-8 rounded-lg px-2.5 text-xs font-medium text-text-muted hover:text-text-main transition-colors"
+          >
             {t("clearFilters")}
           </Button>
         )}
@@ -74,7 +80,13 @@ export function FilterSelect({
   children: ReactNode;
 }) {
   return (
-    <Select label={label} value={value} onChange={(e) => onChange(e.target.value)}>
+    <Select
+      label={label}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="gap-1 [&_.ci-field__label]:!text-xs [&_.ci-field__label]:!font-medium [&_.ci-field__label]:!text-text-muted"
+      selectClassName="!bg-surface-muted !border-border/40 !rounded-lg !h-8 !min-h-8 !text-xs !py-0 transition-colors focus:!border-border-strong focus:!ring-1 focus:!ring-border-strong cursor-pointer"
+    >
       {children}
     </Select>
   );
@@ -133,6 +145,8 @@ export function FilterNumberInput({
       placeholder={placeholder}
       value={value ?? ""}
       onChange={(e) => onChange(parseNonNegativeInt(e.target.value))}
+      className="gap-1 [&_.ci-field__label]:!text-xs [&_.ci-field__label]:!font-medium [&_.ci-field__label]:!text-text-muted [&_.ci-input-shell]:!bg-surface-muted [&_.ci-input-shell]:!border-border/40 [&_.ci-input-shell]:!rounded-lg [&_.ci-input-shell]:!h-8 [&_.ci-input-shell]:!min-h-8 [&_.ci-input-shell]:focus-within:!border-border-strong transition-all"
+      inputClassName="!bg-transparent !text-xs tabular-nums"
     />
   );
 }

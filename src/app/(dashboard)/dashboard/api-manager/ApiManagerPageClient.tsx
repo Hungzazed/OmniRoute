@@ -23,7 +23,9 @@ import Toggle from "@/shared/components/Toggle";
 import { useCopyToClipboard } from "@/shared/hooks/useCopyToClipboard";
 import { useLocale, useTranslations } from "next-intl";
 import { matchesSearch } from "@/shared/utils/turkishText";
+import { cn } from "@/shared/utils/cn";
 import ApiKeyFilterBar from "./components/ApiKeyFilterBar";
+import CodeSnippetBox from "./components/CodeSnippetBox";
 import {
   isKeyActive,
   isExpired,
@@ -162,6 +164,8 @@ export default function ApiManagerPageClient() {
   const [statusFilter, setStatusFilter] = useState<KeyStatus | null>(null);
   const [typeFilter, setTypeFilter] = useState<KeyType | null>(null);
   const [quotaPoolGroup, setQuotaPoolGroup] = useState<Record<string, string>>({});
+  const [showQuickStart, setShowQuickStart] = useState(false);
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "http://localhost:20128";
 
   const { copied, copy } = useCopyToClipboard();
 
@@ -398,7 +402,6 @@ export default function ApiManagerPageClient() {
     activeOnly || statusFilter !== null || typeFilter !== null || searchQuery.trim() !== "";
 
   const isQuotaKey = (k: ApiKey) => Array.isArray(k.allowedQuotas) && k.allowedQuotas.length > 0;
-
   const quotaKeys = filteredKeys.filter(isQuotaKey);
   const normalKeys = filteredKeys.filter((k) => !isQuotaKey(k));
 
@@ -603,7 +606,7 @@ export default function ApiManagerPageClient() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       {/* Error Banner */}
       {pageError && (
         <Alert
@@ -615,36 +618,83 @@ export default function ApiManagerPageClient() {
         />
       )}
 
+      {/* Purpose-first Page Header */}
       <div className="flex flex-col gap-3">
         <PageHeader
           compact
           title={t("keyManagement")}
           description={t("keyManagementDesc")}
           actions={
-            <Button onClick={() => setShowAddModal(true)} icon="add" className="shrink-0">
+            <Button
+              onClick={() => setShowAddModal(true)}
+              icon="add"
+              className="bg-[#007AFF] text-white hover:bg-[#0071E3] rounded-lg font-medium shadow-none transition-colors border-0 shrink-0"
+            >
               {t("createKey")}
             </Button>
           }
         />
         <div
-          className="flex flex-wrap items-center gap-2 text-sm text-text-secondary"
+          className="flex flex-wrap items-center gap-2 text-xs text-text-muted"
           aria-label={t("requestFlowAria")}
         >
-          <span className="rounded-control border border-border bg-surface px-3 py-1.5 font-medium">
+          <span className="rounded-full border border-border/40 bg-surface-muted/60 px-2.5 py-1 font-medium text-text-secondary">
             {t("requestFlowYourApp")}
           </span>
-          <Icon name="arrow_forward" className="text-base text-text-muted" />
-          <span className="rounded-control border border-border bg-surface px-3 py-1.5 font-medium">
+          <Icon name="arrow_forward" className="text-sm text-text-muted/60" />
+          <span className="rounded-full border border-border/40 bg-surface-muted/60 px-2.5 py-1 font-medium text-text-secondary">
             {t("requestFlowApiKey")}
           </span>
-          <Icon name="arrow_forward" className="text-base text-text-muted" />
-          <span className="rounded-control border border-border bg-surface px-3 py-1.5 font-medium">
+          <Icon name="arrow_forward" className="text-sm text-text-muted/60" />
+          <span className="rounded-full border border-border/40 bg-surface-muted/60 px-2.5 py-1 font-medium text-text-secondary">
             {t("requestFlowOmniRoute")}
           </span>
         </div>
       </div>
 
       <RoutingEntryLink />
+
+      {/* Quick Start / cURL Snippet Card */}
+      <Card padding="sm" className="border-border/40 bg-surface shadow-none">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Icon name="terminal" size={16} className="text-text-muted" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                cURL Integration Example
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowQuickStart(!showQuickStart)}
+              className="text-xs text-text-muted hover:text-text-main flex items-center gap-1 font-medium transition-colors"
+            >
+              <span>{showQuickStart ? tc("close") : "Show Snippet"}</span>
+              <Icon name={showQuickStart ? "expand_less" : "expand_more"} size={16} />
+            </button>
+          </div>
+          {showQuickStart && (
+            <CodeSnippetBox
+              title="cURL Request Example"
+              language="cURL"
+              copyLabel={tc("copy")}
+              copiedLabel={tc("copied")}
+              code={`curl ${baseUrl}/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello OmniRoute!"
+      }
+    ]
+  }'`}
+            />
+          )}
+        </div>
+      </Card>
 
       {/* Filter Bar — shown when there are keys */}
       {keys.length > 0 && (
@@ -662,32 +712,24 @@ export default function ApiManagerPageClient() {
       )}
 
       {/* Keys List Card */}
-      <Card>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center size-10 rounded-lg bg-warning/10 shrink-0">
-              <Icon name="vpn_key" className="text-xl text-warning" />
-            </div>
-            <div>
-              <h3 className="font-semibold">
-                {t("registeredKeys")}
-                {isFiltered && (
-                  <span className="ml-1.5 text-sm font-normal text-text-muted">
-                    ({t("shownOf", { shown: filteredKeys.length, total: keys.length })})
-                  </span>
-                )}
-                {!isFiltered && (
-                  <span className="ml-1.5 text-sm font-normal text-text-muted">
-                    ({keys.length})
-                  </span>
-                )}
-              </h3>
-              <p className="text-xs text-text-muted">
-                {keys.length === 1
-                  ? t("keyRegistered", { count: keys.length })
-                  : t("keysRegistered", { count: keys.length })}
-              </p>
-            </div>
+      <Card className="border-border/40 bg-surface shadow-none">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-border/40">
+          <div>
+            <h2 className="text-[15px] font-semibold tracking-tight text-text-main flex items-center gap-2">
+              {t("registeredKeys")}
+              <span className="text-xs font-normal text-text-muted tabular-nums">
+                {isFiltered
+                  ? `(${t("shownOf", { shown: filteredKeys.length, total: keys.length })})`
+                  : `(${keys.length})`}
+              </span>
+            </h2>
+            <p className="text-xs text-text-muted mt-0.5">
+              {keys.length === 1
+                ? t("keyRegistered", { count: keys.length })
+                : t("keysRegistered", { count: keys.length })}
+              {" — "}
+              {t("keysSecurityNote")}
+            </p>
           </div>
           <Button
             icon="add"
@@ -697,20 +739,19 @@ export default function ApiManagerPageClient() {
               clearPageError();
               setShowAddModal(true);
             }}
+            className="bg-[#007AFF] text-white hover:bg-[#0071E3] rounded-lg font-medium shadow-none transition-colors border-0 shrink-0"
           >
             {t("createKey")}
           </Button>
         </div>
 
-        <p className="text-sm text-text-muted mb-4">{t("keysSecurityNote")}</p>
-
         {keys.length === 0 ? (
-          <div className="text-center py-12 border border-dashed border-border rounded-lg">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-4">
-              <Icon name="vpn_key" size={32} />
+          <div className="text-center py-12 border border-dashed border-border/60 rounded-xl bg-surface-muted/20">
+            <div className="inline-flex items-center justify-center size-12 rounded-full bg-surface-muted text-text-muted mb-3 border border-border/40">
+              <Icon name="vpn_key" size={24} />
             </div>
-            <p className="text-text-main font-medium mb-2">{t("noKeys")}</p>
-            <p className="text-sm text-text-muted mb-4">{t("noKeysDesc")}</p>
+            <p className="text-text-main font-semibold mb-1 text-sm">{t("noKeys")}</p>
+            <p className="text-xs text-text-muted mb-4 max-w-sm mx-auto">{t("noKeysDesc")}</p>
             <Button
               icon="add"
               onClick={() => {
@@ -718,17 +759,20 @@ export default function ApiManagerPageClient() {
                 setCreateError(null);
                 setShowAddModal(true);
               }}
+              className="bg-[#007AFF] text-white hover:bg-[#0071E3] rounded-lg font-medium shadow-none border-0 transition-colors"
             >
               {t("createFirstKey")}
             </Button>
           </div>
         ) : filteredKeys.length === 0 ? (
-          <div className="text-center py-12 border border-dashed border-border rounded-lg">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-4">
-              <Icon name="search_off" size={32} />
+          <div className="text-center py-12 border border-dashed border-border/60 rounded-xl bg-surface-muted/20">
+            <div className="inline-flex items-center justify-center size-12 rounded-full bg-surface-muted text-text-muted mb-3 border border-border/40">
+              <Icon name="search_off" size={24} />
             </div>
-            <p className="text-text-main font-medium mb-2">{t("emptyFilterTitle")}</p>
-            <Button onClick={handleClearFilters}>{t("emptyFilterClear")}</Button>
+            <p className="text-text-main font-semibold mb-2 text-sm">{t("emptyFilterTitle")}</p>
+            <Button onClick={handleClearFilters} variant="outline" size="sm" className="rounded-lg">
+              {t("emptyFilterClear")}
+            </Button>
           </div>
         ) : (
           (() => {
@@ -771,61 +815,84 @@ export default function ApiManagerPageClient() {
               const visibleGroups = groups.slice(0, 3);
               const extraGroupCount = groups.length - visibleGroups.length;
               return (
-                <TableRow key={key.id} className="group">
-                  <TableCell className="max-w-48">
+                <TableRow
+                  key={key.id}
+                  className="group hover:bg-surface-muted/40 transition-colors"
+                >
+                  <TableCell className="max-w-48 font-medium">
                     <div className="flex items-center gap-2">
-                      <Icon
-                        name={isRestricted ? "lock" : "lock_open"}
-                        size={14}
-                        className={isRestricted ? "text-warning" : "text-success"}
+                      <span
+                        className={cn(
+                          "size-2 rounded-full shrink-0",
+                          !keyIsActive || key.isBanned
+                            ? "bg-rose-500"
+                            : isRestricted
+                              ? "bg-amber-500"
+                              : "bg-emerald-500"
+                        )}
+                        title={
+                          !keyIsActive ? t("disabled") : isRestricted ? "Restricted" : "Active"
+                        }
                       />
-                      <span className="text-sm font-medium truncate" title={key.name}>
+                      <span
+                        className="text-sm font-semibold truncate text-text-main"
+                        title={key.name}
+                      >
                         {key.name}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell className="max-w-64">
-                    <div className="flex items-center gap-1.5">
-                      <code className="text-sm text-text-muted font-mono truncate">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-muted/70 dark:bg-zinc-800/60 border border-border/40">
+                      <code className="text-xs font-mono text-text-main dark:text-zinc-200 truncate select-all">
                         {visibleKeys.has(key.id) ? (revealedKeys.get(key.id) ?? key.key) : key.key}
                       </code>
                       {allowKeyReveal ? (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
+                        <div className="flex items-center gap-0.5 ml-1 shrink-0">
+                          <button
+                            type="button"
                             onClick={() => handleToggleKeyVisibility(key.id)}
-                            className="shrink-0 text-text-muted"
+                            className="p-1 rounded text-text-muted hover:text-text-main hover:bg-surface transition-colors"
                             title={visibleKeys.has(key.id) ? t("hideKey") : t("showKey")}
                             aria-label={visibleKeys.has(key.id) ? t("hideKey") : t("showKey")}
                             aria-pressed={visibleKeys.has(key.id)}
-                            icon={visibleKeys.has(key.id) ? "visibility_off" : "visibility"}
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
+                          >
+                            <Icon
+                              name={visibleKeys.has(key.id) ? "visibility_off" : "visibility"}
+                              size={14}
+                            />
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => handleCopyExistingKey(key.id)}
-                            className="shrink-0 text-text-muted"
+                            className="p-1 rounded text-text-muted hover:text-text-main hover:bg-surface transition-colors"
                             title={tc("copy")}
                             aria-label={tc("copy")}
-                            icon={copied === `existing_key_${key.id}` ? "check" : "content_copy"}
-                          />
-                        </>
+                          >
+                            <Icon
+                              name={copied === `existing_key_${key.id}` ? "check" : "content_copy"}
+                              size={14}
+                              className={
+                                copied === `existing_key_${key.id}` ? "text-emerald-500" : ""
+                              }
+                            />
+                          </button>
+                        </div>
                       ) : (
                         <span
-                          className="p-1 text-text-muted/40 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all shrink-0 cursor-help"
+                          className="p-1 text-text-muted/40 shrink-0 cursor-help"
                           title={t("keyOnlyAvailableAtCreation")}
                         >
-                          <Icon name="lock" size={14} />
+                          <Icon name="lock" size={13} />
                         </span>
                       )}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-col items-start gap-1">
+                    <div className="flex flex-wrap items-center gap-1.5 max-w-sm">
                       {/* QUOTA differentiation chips — prepended before existing badges */}
                       {keyIsQuota && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-chart-3/10 text-chart-3 text-[11px] font-medium">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 text-[11px] font-medium">
                           {t("quotaModeOnly")}
                         </span>
                       )}
@@ -833,13 +900,13 @@ export default function ApiManagerPageClient() {
                         visibleGroups.map((groupName) => (
                           <span
                             key={groupName}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-info/10 text-info text-[11px] font-medium truncate max-w-full"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-muted text-text-secondary border border-border/40 text-[11px] font-medium truncate max-w-[120px]"
                           >
                             {groupName}
                           </span>
                         ))}
                       {keyIsQuota && extraGroupCount > 0 && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-info/10 text-info text-[11px] font-medium">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-surface-muted text-text-muted border border-border/40 text-[11px] font-medium">
                           +{extraGroupCount}
                         </span>
                       )}
@@ -847,130 +914,130 @@ export default function ApiManagerPageClient() {
                       {isModelRestricted ? (
                         <Link
                           href={`/dashboard/api-manager/${encodeURIComponent(key.id)}/access?tab=models`}
-                          className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-warning/10 text-warning text-xs font-medium hover:bg-warning/20 transition-colors"
+                          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-medium hover:bg-amber-500/20 transition-colors"
                         >
-                          <Icon name="lock" size={14} />
+                          <Icon name="lock" size={12} />
                           {formatProviderModelPermissionSummary(providerCount, modelCount, t, tc)}
                         </Link>
                       ) : (
                         <Link
                           href={`/dashboard/api-manager/${encodeURIComponent(key.id)}/access?tab=models`}
-                          className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-success/10 text-success text-xs font-medium hover:bg-success/20 transition-colors"
+                          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-muted text-text-secondary border border-border/40 text-[11px] font-medium hover:text-text-main transition-colors"
                         >
-                          <Icon name="lock_open" size={14} />
+                          <Icon name="lock_open" size={12} />
                           {t("allModels")}
                         </Link>
                       )}
                       {hasConnectionRestrictions && (
                         <Link
                           href={`/dashboard/api-manager/${encodeURIComponent(key.id)}/access?tab=connections`}
-                          className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-info/10 text-info text-xs font-medium hover:bg-info/20 transition-colors"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-muted text-text-secondary border border-border/40 text-[11px] font-medium hover:text-text-main transition-colors"
                         >
-                          <Icon name="cable" size={14} />
+                          <Icon name="cable" size={12} />
                           {key.allowedConnections!.length} conn
                         </Link>
                       )}
                       {hasExclusiveLeaseScope && (
                         <Link
                           href={`/dashboard/api-manager/${encodeURIComponent(key.id)}/access`}
-                          className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-chart-3/10 text-chart-3 text-xs font-medium hover:bg-chart-3/20 transition-colors"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 text-[11px] font-medium hover:bg-violet-500/20 transition-colors"
                         >
-                          <Icon name="key_vertical" size={14} />
+                          <Icon name="key_vertical" size={12} />
                           {t("exclusiveLease")}
                         </Link>
                       )}
                       {hasComboRestrictions && (
                         <Link
                           href={`/dashboard/api-manager/${encodeURIComponent(key.id)}/access?tab=combos`}
-                          className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-chart-4/10 text-chart-4 text-xs font-medium hover:bg-chart-4/20 transition-colors"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-muted text-text-secondary border border-border/40 text-[11px] font-medium hover:text-text-main transition-colors"
                         >
-                          <Icon name="hub" size={14} />
+                          <Icon name="hub" size={12} />
                           {key.allowedCombos!.length} combos
                         </Link>
                       )}
                       {noLogEnabled && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-chart-3/10 text-chart-3 text-[11px] font-medium">
-                          <Icon name="visibility_off" size={12} />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-muted text-text-muted border border-border/40 text-[11px] font-medium">
+                          <Icon name="visibility_off" size={11} />
                           No-Log
                         </span>
                       )}
                       {key.autoResolve && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-info/10 text-info text-[11px] font-medium">
-                          <Icon name="auto_fix_high" size={12} />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-muted text-text-muted border border-border/40 text-[11px] font-medium">
+                          <Icon name="auto_fix_high" size={11} />
                           Auto-Resolve
                         </span>
                       )}
                       {hasJsonStreamDefault && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-info/10 text-info text-[11px] font-medium">
-                          <Icon name="data_object" size={12} />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-muted text-text-muted border border-border/40 text-[11px] font-medium">
+                          <Icon name="data_object" size={11} />
                           {t("streamDefaultBadge")}
                         </span>
                       )}
                       {hasLocalUsageCommand && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-2 text-text-muted text-[11px] font-medium">
-                          <Icon name="terminal" size={12} />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-muted text-text-muted border border-border/40 text-[11px] font-medium">
+                          <Icon name="terminal" size={11} />
                           {t("localUsageCommandBadge")}
                         </span>
                       )}
                       {key.usageLimitEnabled === true && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-success/10 text-success text-[11px] font-medium">
-                          <Icon name="paid" size={12} />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[11px] font-medium">
+                          <Icon name="paid" size={11} />
                           USD quota
                         </span>
                       )}
                       {hasProviderQuotaBypass && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/10 text-warning text-[11px] font-medium">
-                          <Icon name="alt_route" size={12} />
-                          Bypass quota policy
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-medium">
+                          <Icon name="alt_route" size={11} />
+                          Bypass quota
                         </span>
                       )}
                       {hasSessionLimit && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-chart-3/10 text-chart-3 text-[11px] font-medium">
-                          <Icon name="group" size={12} />
-                          Sessions: {activeSessions}/{maxSessions}
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-muted text-text-muted border border-border/40 text-[11px] font-medium">
+                          <Icon name="group" size={11} />
+                          {activeSessions}/{maxSessions} sess
                         </span>
                       )}
                       {deviceCount > 0 && (
                         <span
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-info/10 text-info text-[11px] font-medium"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-muted text-text-muted border border-border/40 text-[11px] font-medium"
                           title={t("devicesTooltip", { count: deviceCount })}
                         >
-                          <Icon name="devices" size={12} />
+                          <Icon name="devices" size={11} />
                           {t("devicesCount", { count: deviceCount })}
                         </span>
                       )}
                       {hasThrottle && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/10 text-warning text-[11px] font-medium">
-                          <Icon name="speed" size={12} />+{throttleDelayMs}ms
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-medium">
+                          <Icon name="speed" size={11} />+{throttleDelayMs}ms
                         </span>
                       )}
                       {hasManageScope && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 text-error text-[11px] font-medium">
-                          <Icon name="admin_panel_settings" size={12} />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-[11px] font-medium">
+                          <Icon name="admin_panel_settings" size={11} />
                           manage
                         </span>
                       )}
                       {!keyIsActive && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 text-error text-[11px] font-medium">
-                          <Icon name="block" size={12} />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-[11px] font-medium">
+                          <Icon name="block" size={11} />
                           {t("disabled")}
                         </span>
                       )}
                       {hasSchedule && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/10 text-warning text-[11px] font-medium">
-                          <Icon name="schedule" size={12} />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-medium">
+                          <Icon name="schedule" size={11} />
                           {t("scheduleActive")}
                         </span>
                       )}
                       {key.isBanned && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-error/10 text-error text-[11px] font-bold animate-pulse">
-                          <Icon name="gavel" size={12} />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30 text-[11px] font-bold">
+                          <Icon name="gavel" size={11} />
                           BANNED
                         </span>
                       )}
                       {key.expiresAt && new Date(key.expiresAt).getTime() < Date.now() && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-2 text-text-muted text-[11px] font-medium">
-                          <Icon name="event_busy" size={12} />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-muted text-text-muted border border-border/40 text-[11px] font-medium">
+                          <Icon name="event_busy" size={11} />
                           EXPIRED
                         </span>
                       )}
@@ -978,58 +1045,79 @@ export default function ApiManagerPageClient() {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col justify-center">
-                      <span className="text-sm font-medium tabular-nums">
-                        {stats?.totalRequests ?? 0}{" "}
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-sm font-semibold tabular-nums text-text-main">
+                          {(stats?.totalRequests ?? 0).toLocaleString(locale)}
+                        </span>
                         <span className="text-text-muted font-normal text-xs">{t("reqs")}</span>
-                      </span>
-                      {(stats?.totalRequests ?? 0) > 0 && (
-                        <span className="text-[10px] text-success tabular-nums">
-                          {formatUsdCost(stats?.totalCost ?? 0, locale)}
-                        </span>
+                        {(stats?.totalCost ?? 0) > 0 && (
+                          <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium tabular-nums ml-1">
+                            {formatUsdCost(stats?.totalCost ?? 0, locale)}
+                          </span>
+                        )}
+                      </div>
+                      {key.usageLimitEnabled === true && (
+                        <div className="text-[11px] text-text-muted mt-0.5 tabular-nums">
+                          {key.dailyUsageLimitUsd != null && (
+                            <span>Limit: ${key.dailyUsageLimitUsd}/day</span>
+                          )}
+                          {key.weeklyUsageLimitUsd != null && (
+                            <span className="ml-1.5">(${key.weeklyUsageLimitUsd}/wk)</span>
+                          )}
+                        </div>
                       )}
-                      {stats?.lastUsed ? (
-                        <span className="text-[10px] text-text-muted">
-                          {t("lastUsedOn", { date: new Date(stats.lastUsed).toLocaleDateString() })}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] text-text-muted italic">{t("neverUsed")}</span>
-                      )}
+                      <div className="text-[11px] text-text-muted mt-0.5">
+                        {stats?.lastUsed ? (
+                          <span>
+                            {t("lastUsedOn", {
+                              date: new Date(stats.lastUsed).toLocaleDateString(locale),
+                            })}
+                          </span>
+                        ) : (
+                          <span className="italic">{t("neverUsed")}</span>
+                        )}
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-text-muted whitespace-nowrap">
-                    {new Date(key.createdAt).toLocaleDateString()}
+                  <TableCell className="text-xs text-text-muted tabular-nums whitespace-nowrap">
+                    {new Date(key.createdAt).toLocaleDateString(locale, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </TableCell>
+                  {/* Actions column */}
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
                       <a
                         href={`/dashboard/costs?range=all&apiKeyIds=${encodeURIComponent(key.id)}&groupBy=model`}
-                        className="p-2 hover:bg-success/10 rounded text-text-muted hover:text-success opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all"
+                        className="p-1.5 hover:bg-surface-muted rounded-md text-text-muted hover:text-emerald-600 dark:hover:text-emerald-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all inline-flex items-center justify-center"
                         title={`View costs for ${key.name}`}
                         aria-label={`View costs for ${key.name}`}
                       >
-                        <Icon name="payments" size={18} />
+                        <Icon name="payments" size={17} />
                       </a>
                       <Button
                         variant="ghost"
-                        size="icon"
+                        size="icon-sm"
                         onClick={() => handleRegenerateKey(key.id)}
-                        className="text-text-muted hover:text-warning opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
+                        className="text-text-muted hover:text-amber-600 dark:hover:text-amber-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 rounded-md"
                         title={t("regenerateKey")}
                         aria-label={t("regenerateKey")}
                         icon="refresh"
                       />
                       <Link
                         href={`/dashboard/api-manager/${encodeURIComponent(key.id)}/access`}
-                        className="p-2 hover:bg-primary/10 rounded text-text-muted hover:text-primary opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all inline-flex items-center justify-center"
+                        className="p-1.5 hover:bg-surface-muted rounded-md text-text-muted hover:text-[#007AFF] opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all inline-flex items-center justify-center"
                         title={t("editPermissions")}
                       >
-                        <Icon name="tune" size={18} />
+                        <Icon name="tune" size={17} />
                       </Link>
                       <Button
                         variant="ghost"
-                        size="icon"
+                        size="icon-sm"
                         onClick={() => handleDeleteKey(key.id)}
-                        className="text-error opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
+                        className="text-text-muted hover:text-rose-600 dark:hover:text-rose-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 rounded-md"
                         title={t("deleteKey")}
                         aria-label={t("deleteKey")}
                         icon="delete"
@@ -1042,13 +1130,25 @@ export default function ApiManagerPageClient() {
 
             const tableHeader = (
               <TableHeader>
-                <TableRow>
-                  <TableHead>{t("name")}</TableHead>
-                  <TableHead>{t("key")}</TableHead>
-                  <TableHead>{t("permissions")}</TableHead>
-                  <TableHead>{t("usage")}</TableHead>
-                  <TableHead>{t("created")}</TableHead>
-                  <TableHead className="text-right">{t("actions")}</TableHead>
+                <TableRow className="border-b border-border/40 bg-surface-muted/30">
+                  <TableHead className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    {t("name")}
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    {t("key")}
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    {t("permissions")}
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    {t("usage")}
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    {t("created")}
+                  </TableHead>
+                  <TableHead className="text-right text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    {t("actions")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
             );
@@ -1063,7 +1163,7 @@ export default function ApiManagerPageClient() {
                       <span className="text-sm font-medium text-text-main">
                         {t("normalKeysSection")}
                       </span>
-                      <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-surface/80 border border-border text-[11px] font-semibold text-text-muted">
+                      <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-surface-muted border border-border/40 text-[11px] font-semibold text-text-muted tabular-nums">
                         {normalKeys.length}
                       </span>
                     </div>
@@ -1077,14 +1177,14 @@ export default function ApiManagerPageClient() {
                   <div>
                     {/* Quota keys section heading */}
                     <div className="flex items-center gap-2 mb-2">
-                      <Icon name="toll" className="text-base text-chart-3" />
+                      <Icon name="toll" className="text-base text-violet-500" />
                       <span className="text-sm font-medium text-text-main">
                         {t("quotaKeysSection")}
                       </span>
-                      <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-surface/80 border border-border text-[11px] font-semibold text-text-muted">
+                      <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-surface-muted border border-border/40 text-[11px] font-semibold text-text-muted tabular-nums">
                         {quotaKeys.length}
                       </span>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-chart-3/10 text-chart-3 text-[11px] font-semibold">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 text-[11px] font-semibold">
                         {t("quotaPill")}
                       </span>
                     </div>
@@ -1133,7 +1233,7 @@ export default function ApiManagerPageClient() {
               hint={t("keyNameDesc")}
             />
           </div>
-          <div className="flex items-start justify-between gap-3 p-3 rounded-lg border border-border bg-surface/40">
+          <div className="flex items-start justify-between gap-3 p-3.5 rounded-xl border border-border/40 bg-surface-muted/40">
             <div className="flex flex-col gap-1">
               <p className="text-sm font-medium text-text-main">{t("managementAccess")}</p>
               <p className="text-xs text-text-muted">{t("managementAccessDesc")}</p>
@@ -1146,7 +1246,7 @@ export default function ApiManagerPageClient() {
               ariaLabel={t("managementAccess")}
             />
           </div>
-          <div className="flex flex-col gap-3 p-3 rounded-lg border border-border bg-surface/40">
+          <div className="flex flex-col gap-3 p-3.5 rounded-xl border border-border/40 bg-surface-muted/40">
             <div className="flex flex-col gap-1">
               <p className="text-sm font-medium text-text-main">{t("selfServiceVisibility")}</p>
               <p className="text-xs text-text-muted">{t("selfServiceVisibilityDesc")}</p>
@@ -1206,7 +1306,7 @@ export default function ApiManagerPageClient() {
               onDismiss={() => setCreateError(null)}
             />
           )}
-          <div className="flex gap-2">
+          <div className="flex gap-2 pt-2 border-t border-border/40">
             <Button
               onClick={() => {
                 setShowAddModal(false);
@@ -1228,6 +1328,7 @@ export default function ApiManagerPageClient() {
               fullWidth
               disabled={!newKeyName.trim()}
               loading={isSubmitting}
+              className="bg-[#007AFF] text-white hover:bg-[#0071E3] rounded-lg font-medium shadow-none border-0 transition-colors"
             >
               {t("createKey")}
             </Button>
@@ -1245,17 +1346,49 @@ export default function ApiManagerPageClient() {
             description={t("keyCreatedNote")}
             dismissLabel={tc("close")}
           />
-          <div className="flex gap-2">
-            <Input value={createdKey || ""} readOnly className="flex-1 font-mono text-sm" />
-            <Button
-              variant="secondary"
-              icon={copied === "created_key" ? "check" : "content_copy"}
-              onClick={() => copy(createdKey, "created_key")}
-            >
-              {copied === "created_key" ? tc("copied") : tc("copy")}
-            </Button>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-text-muted">{t("apiKey")}</span>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-surface-muted border border-border/50">
+              <code className="font-mono text-xs text-text-main truncate select-all font-semibold">
+                {createdKey}
+              </code>
+              <Button
+                variant="secondary"
+                size="sm"
+                icon={copied === "created_key" ? "check" : "content_copy"}
+                onClick={() => copy(createdKey, "created_key")}
+                className="shrink-0 ml-2"
+              >
+                {copied === "created_key" ? tc("copied") : tc("copy")}
+              </Button>
+            </div>
           </div>
-          <Button onClick={() => setCreatedKey(null)} fullWidth>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-text-muted">cURL Request Example</span>
+            <CodeSnippetBox
+              title="cURL Request Example"
+              language="cURL"
+              copyLabel={tc("copy")}
+              copiedLabel={tc("copied")}
+              code={`curl ${baseUrl}/v1/chat/completions \\
+  -H "Authorization: Bearer ${createdKey || "YOUR_API_KEY"}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello OmniRoute!"
+      }
+    ]
+  }'`}
+            />
+          </div>
+          <Button
+            onClick={() => setCreatedKey(null)}
+            fullWidth
+            className="bg-[#007AFF] text-white hover:bg-[#0071E3] rounded-lg font-medium shadow-none border-0 transition-colors"
+          >
             {t("done")}
           </Button>
         </div>

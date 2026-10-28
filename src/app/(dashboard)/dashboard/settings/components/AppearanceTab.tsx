@@ -1,9 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { RadioGroup, RadioGroupItem } from "@omniroute/ui-kit/radio-group";
-import { Button, Card, Input, Toggle } from "@/shared/components";
+import { Button, Input, Toggle } from "@/shared/components";
 import Icon from "@/shared/components/Icon";
 import { useTheme } from "@/shared/hooks/useTheme";
 import { useIsElectron } from "@/shared/hooks/useElectron";
@@ -12,6 +12,7 @@ import {
   normalizeComboConfigMode,
   type ComboConfigMode,
 } from "@/shared/constants/comboConfigMode";
+import { cn } from "@/shared/utils/cn";
 import AccountEmailVisibilitySetting from "./AccountEmailVisibilitySetting";
 
 export default function AppearanceTab() {
@@ -28,12 +29,14 @@ export default function AppearanceTab() {
       window.electronAPI.getAutostartStatus().then(setAutostartEnabled).catch(console.error);
     }
   }, [isElectron]);
+
   const [settings, setSettings] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [uploadError, setUploadError] = useState<{
     target: "logo" | "favicon";
     message: string;
   } | null>(null);
+
   const showQuickStartOnHome = settings.showQuickStartOnHome !== false;
   const showProviderTopologyOnHome = settings.showProviderTopologyOnHome !== false;
   const autoRefreshProviderQuota = settings.autoRefreshProviderQuota === true;
@@ -49,12 +52,6 @@ export default function AppearanceTab() {
 
   const getSettingsLabel = (key: string, fallback: string) =>
     typeof t.has === "function" && t.has(key) ? t(key) : fallback;
-
-  const themeOptionLabels: Record<string, string> = {
-    light: t("themeLight"),
-    dark: t("themeDark"),
-    system: t("themeSystem"),
-  };
 
   useEffect(() => {
     fetch("/api/settings")
@@ -98,7 +95,7 @@ export default function AppearanceTab() {
       title: getSettingsLabel("comboConfigModeGuided", "Guided"),
       description: getSettingsLabel(
         "comboConfigModeGuidedDesc",
-        "Use the current step-by-step combo builder."
+        "Step-by-step wizard for configuring models and weights."
       ),
     },
     {
@@ -107,7 +104,7 @@ export default function AppearanceTab() {
       title: getSettingsLabel("comboConfigModeExpert", "Expert"),
       description: getSettingsLabel(
         "comboConfigModeExpertDesc",
-        "Show every combo option on one page and enable direct model entry."
+        "Unified single-screen view with raw model IDs and full control."
       ),
     },
   ];
@@ -117,300 +114,459 @@ export default function AppearanceTab() {
     : 180;
 
   return (
-    <Card title={t("appearance")} icon="palette">
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">{t("darkMode")}</p>
-            <p className="text-sm text-text-muted">{t("switchThemes")}</p>
-          </div>
-          <Toggle
-            checked={isDark}
-            onChange={() => setTheme(isDark ? "light" : "dark")}
-            ariaLabel={t("darkMode")}
-          />
+    <div className="space-y-8">
+      {/* Group 1: Appearance & Theme (Visual Previews) */}
+      <section className="space-y-2">
+        <div className="px-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground select-none">
+            {getSettingsLabel("themeSection", "Theme & Appearance")}
+          </h3>
         </div>
 
-        <div className="pt-4 border-t border-border">
-          <RadioGroup
-            aria-label={t("themeSelectionAria")}
-            orientation="horizontal"
-            value={theme}
-            onValueChange={(next) => setTheme(next)}
-          >
-            {["light", "dark", "system"].map((option) => (
-              <RadioGroupItem
-                key={option}
-                card
-                value={option}
-                label={
-                  <span className="flex items-center gap-2">
-                    <Icon
-                      name={
-                        option === "light"
-                          ? "light_mode"
-                          : option === "dark"
-                            ? "dark_mode"
-                            : "contrast"
-                      }
-                      size={18}
-                    />
-                    {themeOptionLabels[option] || option}
-                  </span>
-                }
-              />
-            ))}
-          </RadioGroup>
-        </div>
-
-        <div className="pt-4 border-t border-border">
-          <div className="mb-3">
-            <p className="font-medium">
-              {getSettingsLabel("homePinProviderQuotaToHome", "Pin Information to Home Page")}
-            </p>
-            <p className="text-sm text-text-muted">{t("homePinnedSectionsDesc")}</p>
-          </div>
-
-          <div className="rounded-lg border border-border bg-surface/40 overflow-hidden">
-            <div className="divide-y divide-border/70">
-              <div className="flex items-start justify-between gap-4 px-4 py-3">
-                <div>
-                  <p className="font-medium">{getSettingsLabel("homeQuickStart", "Quick Start")}</p>
-                  <p className="text-sm text-text-muted">
-                    {getSettingsLabel(
-                      "homeQuickStartDesc",
-                      "Show the Quick Start panel on the Home page."
-                    )}
-                  </p>
+        <div className="rounded-xl border border-border/40 bg-card overflow-hidden shadow-none divide-y divide-border/40">
+          {/* Visual Theme Selection Cards */}
+          <div className="p-4 sm:p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              {/* Light Theme Card */}
+              <button
+                type="button"
+                onClick={() => setTheme("light")}
+                className={cn(
+                  "group relative flex flex-col items-center gap-2.5 p-3 rounded-xl border text-left transition-all duration-150",
+                  theme === "light"
+                    ? "border-accent ring-2 ring-accent/25 bg-accent/5 shadow-xs"
+                    : "border-border/50 hover:border-border hover:bg-surface-muted/40"
+                )}
+              >
+                {/* Visual Window - Light */}
+                <div className="w-full h-24 rounded-lg border border-zinc-200/90 bg-white overflow-hidden shadow-xs flex flex-col pointer-events-none select-none">
+                  <div className="h-4 bg-zinc-100 border-b border-zinc-200/80 px-2 flex items-center gap-1 shrink-0">
+                    <div className="size-1.5 rounded-full bg-red-400" />
+                    <div className="size-1.5 rounded-full bg-amber-400" />
+                    <div className="size-1.5 rounded-full bg-emerald-400" />
+                  </div>
+                  <div className="flex-1 flex p-2 gap-1.5 bg-zinc-50/70">
+                    <div className="w-1/3 bg-zinc-100 rounded flex flex-col gap-1 p-1">
+                      <div className="h-1.5 w-3/4 bg-zinc-300 rounded-xs" />
+                      <div className="h-1.5 w-1/2 bg-zinc-200 rounded-xs" />
+                      <div className="h-1.5 w-2/3 bg-zinc-200 rounded-xs" />
+                    </div>
+                    <div className="flex-1 bg-white rounded border border-zinc-200/60 p-1.5 flex flex-col gap-1">
+                      <div className="h-2 w-2/5 bg-blue-500 rounded-xs" />
+                      <div className="h-1.5 w-full bg-zinc-200 rounded-xs" />
+                      <div className="h-1.5 w-4/5 bg-zinc-100 rounded-xs" />
+                    </div>
+                  </div>
                 </div>
-                <Toggle
-                  checked={showQuickStartOnHome}
-                  ariaLabel={getSettingsLabel("homeQuickStart", "Quick Start")}
-                  onChange={async (checked) => {
-                    await updateSetting("showQuickStartOnHome", checked);
-                  }}
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="flex items-start justify-between gap-4 px-4 py-3">
-                <div>
-                  <p className="font-medium">
-                    {getSettingsLabel("homeProviderTopology", "Provider Topology")}
-                  </p>
-                  <p className="text-sm text-text-muted">
-                    {getSettingsLabel(
-                      "homeProviderTopologyDesc",
-                      "Show the Provider Topology on the Home page."
+                <div className="flex items-center gap-2 text-xs font-medium text-foreground">
+                  <span
+                    className={cn(
+                      "size-2 rounded-full transition-colors",
+                      theme === "light"
+                        ? "bg-accent ring-2 ring-accent/30"
+                        : "border border-muted-foreground/60"
                     )}
-                  </p>
+                  />
+                  <span>{t("themeLight")}</span>
                 </div>
-                <Toggle
-                  checked={showProviderTopologyOnHome}
-                  ariaLabel={getSettingsLabel("homeProviderTopology", "Provider Topology")}
-                  onChange={async (checked) => {
-                    await updateSetting("showProviderTopologyOnHome", checked);
-                  }}
-                  disabled={loading}
-                />
-              </div>
+              </button>
+
+              {/* Dark Theme Card */}
+              <button
+                type="button"
+                onClick={() => setTheme("dark")}
+                className={cn(
+                  "group relative flex flex-col items-center gap-2.5 p-3 rounded-xl border text-left transition-all duration-150",
+                  theme === "dark"
+                    ? "border-accent ring-2 ring-accent/25 bg-accent/5 shadow-xs"
+                    : "border-border/50 hover:border-border hover:bg-surface-muted/40"
+                )}
+              >
+                {/* Visual Window - Dark */}
+                <div className="w-full h-24 rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden shadow-xs flex flex-col pointer-events-none select-none">
+                  <div className="h-4 bg-zinc-900 border-b border-zinc-800 px-2 flex items-center gap-1 shrink-0">
+                    <div className="size-1.5 rounded-full bg-zinc-700" />
+                    <div className="size-1.5 rounded-full bg-zinc-700" />
+                    <div className="size-1.5 rounded-full bg-zinc-700" />
+                  </div>
+                  <div className="flex-1 flex p-2 gap-1.5 bg-zinc-950">
+                    <div className="w-1/3 bg-zinc-900 rounded flex flex-col gap-1 p-1">
+                      <div className="h-1.5 w-3/4 bg-zinc-700 rounded-xs" />
+                      <div className="h-1.5 w-1/2 bg-zinc-800 rounded-xs" />
+                      <div className="h-1.5 w-2/3 bg-zinc-800 rounded-xs" />
+                    </div>
+                    <div className="flex-1 bg-zinc-900 rounded border border-zinc-800 p-1.5 flex flex-col gap-1">
+                      <div className="h-2 w-2/5 bg-blue-500 rounded-xs" />
+                      <div className="h-1.5 w-full bg-zinc-700 rounded-xs" />
+                      <div className="h-1.5 w-4/5 bg-zinc-800 rounded-xs" />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-medium text-foreground">
+                  <span
+                    className={cn(
+                      "size-2 rounded-full transition-colors",
+                      theme === "dark"
+                        ? "bg-accent ring-2 ring-accent/30"
+                        : "border border-muted-foreground/60"
+                    )}
+                  />
+                  <span>{t("themeDark")}</span>
+                </div>
+              </button>
+
+              {/* Auto / System Theme Card */}
+              <button
+                type="button"
+                onClick={() => setTheme("system")}
+                className={cn(
+                  "group relative flex flex-col items-center gap-2.5 p-3 rounded-xl border text-left transition-all duration-150",
+                  theme === "system"
+                    ? "border-accent ring-2 ring-accent/25 bg-accent/5 shadow-xs"
+                    : "border-border/50 hover:border-border hover:bg-surface-muted/40"
+                )}
+              >
+                {/* Visual Window - Auto Split */}
+                <div className="w-full h-24 rounded-lg border border-zinc-400/30 overflow-hidden shadow-xs flex flex-col pointer-events-none select-none relative">
+                  <div className="absolute inset-0 flex">
+                    {/* Left half - Light */}
+                    <div className="w-1/2 h-full bg-white flex flex-col border-r border-zinc-300 dark:border-zinc-700">
+                      <div className="h-4 bg-zinc-100 border-b border-zinc-200 px-1.5 flex items-center gap-1 shrink-0">
+                        <div className="size-1.5 rounded-full bg-red-400" />
+                        <div className="size-1.5 rounded-full bg-amber-400" />
+                      </div>
+                      <div className="flex-1 p-1.5 flex flex-col gap-1 bg-zinc-50">
+                        <div className="h-1.5 w-3/4 bg-zinc-300 rounded-xs" />
+                        <div className="h-1.5 w-1/2 bg-zinc-200 rounded-xs" />
+                        <div className="h-2 w-4/5 bg-blue-500 rounded-xs mt-1" />
+                      </div>
+                    </div>
+                    {/* Right half - Dark */}
+                    <div className="w-1/2 h-full bg-zinc-950 flex flex-col">
+                      <div className="h-4 bg-zinc-900 border-b border-zinc-800 px-1.5 flex items-center justify-end gap-1 shrink-0">
+                        <div className="size-1.5 rounded-full bg-zinc-700" />
+                      </div>
+                      <div className="flex-1 p-1.5 flex flex-col gap-1 bg-zinc-900">
+                        <div className="h-1.5 w-3/4 bg-zinc-700 rounded-xs" />
+                        <div className="h-1.5 w-1/2 bg-zinc-800 rounded-xs" />
+                        <div className="h-2 w-4/5 bg-blue-500 rounded-xs mt-1" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-medium text-foreground">
+                  <span
+                    className={cn(
+                      "size-2 rounded-full transition-colors",
+                      theme === "system"
+                        ? "bg-accent ring-2 ring-accent/30"
+                        : "border border-muted-foreground/60"
+                    )}
+                  />
+                  <span>{t("themeSystem")}</span>
+                </div>
+              </button>
             </div>
           </div>
-        </div>
 
-        <div className="pt-4 border-t border-border">
-          <div className="mb-3">
-            <p className="font-medium">
-              {getSettingsLabel("endpointTunnelVisibility", "Endpoint tunnel visibility")}
-            </p>
-            <p className="text-sm text-text-muted">
-              {getSettingsLabel(
-                "endpointTunnelVisibilityDesc",
-                "Hide tunnel controls from the Endpoint page without changing tunnel state."
-              )}
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-border bg-surface/40 divide-y divide-border/70">
-            <div className="flex items-center justify-between gap-4 px-4 py-3">
-              <div>
-                <p className="font-medium">
-                  {getSettingsLabel("showCloudflareTunnel", "Cloudflare Quick Tunnel")}
-                </p>
-                <p className="text-sm text-text-muted">
-                  {getSettingsLabel(
-                    "showCloudflareTunnelDesc",
-                    "Show Cloudflare Quick Tunnel controls on the Endpoint page."
-                  )}
-                </p>
-              </div>
-              <Toggle
-                checked={showCloudflaredTunnel}
-                ariaLabel={getSettingsLabel("showCloudflareTunnel", "Cloudflare Quick Tunnel")}
-                onChange={(checked) => updateSetting("hideEndpointCloudflaredTunnel", !checked)}
-                disabled={loading}
-              />
-            </div>
-
-            <div className="flex items-center justify-between gap-4 px-4 py-3">
-              <div>
-                <p className="font-medium">
-                  {getSettingsLabel("showTailscaleFunnel", "Tailscale Funnel")}
-                </p>
-                <p className="text-sm text-text-muted">
-                  {getSettingsLabel(
-                    "showTailscaleFunnelDesc",
-                    "Show Tailscale Funnel controls on the Endpoint page."
-                  )}
-                </p>
-              </div>
-              <Toggle
-                checked={showTailscaleFunnel}
-                ariaLabel={getSettingsLabel("showTailscaleFunnel", "Tailscale Funnel")}
-                onChange={(checked) => updateSetting("hideEndpointTailscaleFunnel", !checked)}
-                disabled={loading}
-              />
-            </div>
-
-            <div className="flex items-center justify-between gap-4 px-4 py-3">
-              <div>
-                <p className="font-medium">{getSettingsLabel("showNgrokTunnel", "ngrok Tunnel")}</p>
-                <p className="text-sm text-text-muted">
-                  {getSettingsLabel(
-                    "showNgrokTunnelDesc",
-                    "Show ngrok Tunnel controls on the Endpoint page."
-                  )}
-                </p>
-              </div>
-              <Toggle
-                checked={showNgrokTunnel}
-                ariaLabel={getSettingsLabel("showNgrokTunnel", "ngrok Tunnel")}
-                onChange={(checked) => updateSetting("hideEndpointNgrokTunnel", !checked)}
-                disabled={loading}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="pt-4 border-t border-border">
-          <div className="mb-3">
-            <p className="font-medium">
-              {getSettingsLabel("comboConfigMode", "Combo configuration mode")}
-            </p>
-            <p className="text-sm text-text-muted">
-              {getSettingsLabel(
-                "comboConfigModeDesc",
-                "Choose how the combo create and edit dialog is organized."
-              )}
-            </p>
-          </div>
-
-          <RadioGroup
-            aria-label={getSettingsLabel("comboConfigMode", "Combo configuration mode")}
-            orientation="horizontal"
-            value={comboConfigMode}
-            onValueChange={(next) => updateSetting(COMBO_CONFIG_MODE_SETTING_KEY, next)}
-            disabled={loading}
-          >
-            {comboConfigModeOptions.map((option) => (
-              <RadioGroupItem
-                key={option.id}
-                card
-                value={option.id}
-                label={
-                  <span className="flex items-center gap-2">
-                    <Icon name={option.icon} size={18} />
-                    {option.title}
-                  </span>
-                }
-                description={option.description}
-              />
-            ))}
-          </RadioGroup>
-        </div>
-
-        <div className="pt-4 border-t border-border">
-          <div className="mb-3">
-            <p className="font-medium">
-              {getSettingsLabel("providerQuotaAutoRefresh", "Provider Quota auto refresh")}
-            </p>
-            <p className="text-sm text-text-muted">
-              {getSettingsLabel(
-                "providerQuotaAutoRefreshDesc",
-                "Refresh the Provider Limits view automatically while it stays open."
-              )}
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-border bg-surface/40 divide-y divide-border/70">
-            <div className="flex items-center justify-between gap-4 px-4 py-3">
-              <div>
-                <p className="font-medium">
-                  {getSettingsLabel("providerQuotaAutoRefreshToggle", "Automatic refresh")}
-                </p>
-                <p className="text-sm text-text-muted">
-                  {getSettingsLabel(
-                    "providerQuotaAutoRefreshToggleDesc",
-                    "Refresh the quota view every few minutes while the page is visible."
-                  )}
-                </p>
-              </div>
-              <Toggle
-                checked={autoRefreshProviderQuota}
-                ariaLabel={getSettingsLabel("providerQuotaAutoRefreshToggle", "Automatic refresh")}
-                onChange={async (checked) => {
-                  if (checked && !settings.autoRefreshProviderQuotaInterval) {
-                    await updateSetting("autoRefreshProviderQuotaInterval", 180);
-                  }
-                  await updateSetting("autoRefreshProviderQuota", checked);
-                }}
-                disabled={loading}
-              />
-            </div>
-
-            <div className="flex items-center justify-between gap-4 px-4 py-3">
-              <div>
-                <p className="font-medium">
-                  {getSettingsLabel("providerQuotaAutoRefreshInterval", "Refresh interval")}
-                </p>
-                <p className="text-sm text-text-muted">
-                  {getSettingsLabel(
-                    "providerQuotaAutoRefreshIntervalDesc",
-                    "How often the quota view should refresh, in seconds."
-                  )}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  aria-label={getSettingsLabel(
-                    "providerQuotaAutoRefreshInterval",
-                    "Refresh interval"
-                  )}
-                  min={10}
-                  max={3600}
-                  step={10}
-                  value={quotaRefreshInterval}
-                  onChange={async (e) => {
-                    const next = Math.min(3600, Math.max(10, Number(e.target.value) || 180));
-                    await updateSetting("autoRefreshProviderQuotaInterval", next);
-                  }}
-                  disabled={loading || !autoRefreshProviderQuota}
-                  className="w-28 shrink-0"
-                />
-                <span className="text-xs text-text-muted">{t("seconds")}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <AccountEmailVisibilitySetting />
-
-        <div className="pt-4 border-t border-border">
-          <div className="flex items-center justify-between">
+          {/* Quick Dark Mode Switch */}
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-surface-muted/30 transition-colors">
             <div>
-              <p className="font-medium">{t("hideHealthLogs")}</p>
-              <p className="text-sm text-text-muted">{t("hideHealthLogsDesc")}</p>
+              <p className="text-sm font-medium text-foreground">{t("darkMode")}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t("switchThemes")}</p>
+            </div>
+            <Toggle
+              checked={isDark}
+              onChange={() => setTheme(isDark ? "light" : "dark")}
+              ariaLabel={t("darkMode")}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Group 2: Home Dashboard Views */}
+      <section className="space-y-2">
+        <div className="px-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground select-none">
+            {getSettingsLabel("homePinProviderQuotaToHome", "Home Dashboard Views")}
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("homePinnedSectionsDesc")}</p>
+        </div>
+
+        <div className="rounded-xl border border-border/40 bg-card overflow-hidden shadow-none divide-y divide-border/40">
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-surface-muted/30 transition-colors">
+            <div className="min-w-0 flex-1 pr-4">
+              <p className="text-sm font-medium text-foreground">
+                {getSettingsLabel("homeQuickStart", "Quick Start Panel")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {getSettingsLabel(
+                  "homeQuickStartDesc",
+                  "Show the Quick Start panel on the Home page."
+                )}
+              </p>
+            </div>
+            <Toggle
+              checked={showQuickStartOnHome}
+              ariaLabel={getSettingsLabel("homeQuickStart", "Quick Start Panel")}
+              onChange={async (checked) => {
+                await updateSetting("showQuickStartOnHome", checked);
+              }}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-surface-muted/30 transition-colors">
+            <div className="min-w-0 flex-1 pr-4">
+              <p className="text-sm font-medium text-foreground">
+                {getSettingsLabel("homeProviderTopology", "Provider Topology")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {getSettingsLabel(
+                  "homeProviderTopologyDesc",
+                  "Show the Provider Topology on the Home page."
+                )}
+              </p>
+            </div>
+            <Toggle
+              checked={showProviderTopologyOnHome}
+              ariaLabel={getSettingsLabel("homeProviderTopology", "Provider Topology")}
+              onChange={async (checked) => {
+                await updateSetting("showProviderTopologyOnHome", checked);
+              }}
+              disabled={loading}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Group 3: Endpoint Tunnels Visibility */}
+      <section className="space-y-2">
+        <div className="px-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground select-none">
+            {getSettingsLabel("endpointTunnelVisibility", "Endpoint Tunnels")}
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {getSettingsLabel(
+              "endpointTunnelVisibilityDesc",
+              "Hide tunnel controls from the Endpoint page without changing tunnel state."
+            )}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-border/40 bg-card overflow-hidden shadow-none divide-y divide-border/40">
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-surface-muted/30 transition-colors">
+            <div className="min-w-0 flex-1 pr-4">
+              <p className="text-sm font-medium text-foreground">
+                {getSettingsLabel("showCloudflareTunnel", "Cloudflare Quick Tunnel")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {getSettingsLabel(
+                  "showCloudflareTunnelDesc",
+                  "Show Cloudflare Quick Tunnel controls on the Endpoint page."
+                )}
+              </p>
+            </div>
+            <Toggle
+              checked={showCloudflaredTunnel}
+              ariaLabel={getSettingsLabel("showCloudflareTunnel", "Cloudflare Quick Tunnel")}
+              onChange={(checked) => updateSetting("hideEndpointCloudflaredTunnel", !checked)}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-surface-muted/30 transition-colors">
+            <div className="min-w-0 flex-1 pr-4">
+              <p className="text-sm font-medium text-foreground">
+                {getSettingsLabel("showTailscaleFunnel", "Tailscale Funnel")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {getSettingsLabel(
+                  "showTailscaleFunnelDesc",
+                  "Show Tailscale Funnel controls on the Endpoint page."
+                )}
+              </p>
+            </div>
+            <Toggle
+              checked={showTailscaleFunnel}
+              ariaLabel={getSettingsLabel("showTailscaleFunnel", "Tailscale Funnel")}
+              onChange={(checked) => updateSetting("hideEndpointTailscaleFunnel", !checked)}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-surface-muted/30 transition-colors">
+            <div className="min-w-0 flex-1 pr-4">
+              <p className="text-sm font-medium text-foreground">
+                {getSettingsLabel("showNgrokTunnel", "ngrok Tunnel")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {getSettingsLabel(
+                  "showNgrokTunnelDesc",
+                  "Show ngrok Tunnel controls on the Endpoint page."
+                )}
+              </p>
+            </div>
+            <Toggle
+              checked={showNgrokTunnel}
+              ariaLabel={getSettingsLabel("showNgrokTunnel", "ngrok Tunnel")}
+              onChange={(checked) => updateSetting("hideEndpointNgrokTunnel", !checked)}
+              disabled={loading}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Group 4: Combo Configuration Mode */}
+      <section className="space-y-2">
+        <div className="px-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground select-none">
+            {getSettingsLabel("comboConfigMode", "Combo Configuration Mode")}
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {getSettingsLabel(
+              "comboConfigModeDesc",
+              "Choose how the combo create and edit dialog is organized."
+            )}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-border/40 bg-card overflow-hidden shadow-none p-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {comboConfigModeOptions.map((option) => {
+              const active = comboConfigMode === option.id;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => updateSetting(COMBO_CONFIG_MODE_SETTING_KEY, option.id)}
+                  disabled={loading}
+                  className={cn(
+                    "flex items-start gap-3 p-3.5 rounded-lg border text-left transition-all duration-150",
+                    active
+                      ? "border-accent ring-1 ring-accent/30 bg-accent/5 shadow-xs"
+                      : "border-border/40 hover:border-border hover:bg-surface-muted/30"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "flex size-8 shrink-0 items-center justify-center rounded-md transition-colors",
+                      active
+                        ? "bg-accent text-accent-foreground"
+                        : "bg-surface-muted text-muted-foreground"
+                    )}
+                  >
+                    <Icon name={option.icon} size={16} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-xs font-semibold text-foreground">{option.title}</p>
+                      {active && (
+                        <span className="size-1.5 rounded-full bg-accent" />
+                      )}
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-normal">
+                      {option.description}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Group 5: Provider Quota Refresh */}
+      <section className="space-y-2">
+        <div className="px-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground select-none">
+            {getSettingsLabel("providerQuotaAutoRefresh", "Provider Quota Auto-Refresh")}
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {getSettingsLabel(
+              "providerQuotaAutoRefreshDesc",
+              "Refresh the Provider Limits view automatically while it stays open."
+            )}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-border/40 bg-card overflow-hidden shadow-none divide-y divide-border/40">
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-surface-muted/30 transition-colors">
+            <div className="min-w-0 flex-1 pr-4">
+              <p className="text-sm font-medium text-foreground">
+                {getSettingsLabel("providerQuotaAutoRefreshToggle", "Automatic Refresh")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {getSettingsLabel(
+                  "providerQuotaAutoRefreshToggleDesc",
+                  "Refresh the quota view periodically while the page is visible."
+                )}
+              </p>
+            </div>
+            <Toggle
+              checked={autoRefreshProviderQuota}
+              ariaLabel={getSettingsLabel("providerQuotaAutoRefreshToggle", "Automatic refresh")}
+              onChange={async (checked) => {
+                if (checked && !settings.autoRefreshProviderQuotaInterval) {
+                  await updateSetting("autoRefreshProviderQuotaInterval", 180);
+                }
+                await updateSetting("autoRefreshProviderQuota", checked);
+              }}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-surface-muted/30 transition-colors">
+            <div className="min-w-0 flex-1 pr-4">
+              <p className="text-sm font-medium text-foreground">
+                {getSettingsLabel("providerQuotaAutoRefreshInterval", "Refresh Interval")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {getSettingsLabel(
+                  "providerQuotaAutoRefreshIntervalDesc",
+                  "How often the quota view should refresh, in seconds."
+                )}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Input
+                type="number"
+                aria-label={getSettingsLabel(
+                  "providerQuotaAutoRefreshInterval",
+                  "Refresh interval"
+                )}
+                min={10}
+                max={3600}
+                step={10}
+                value={quotaRefreshInterval}
+                onChange={async (e) => {
+                  const next = Math.min(3600, Math.max(10, Number(e.target.value) || 180));
+                  await updateSetting("autoRefreshProviderQuotaInterval", next);
+                }}
+                disabled={loading || !autoRefreshProviderQuota}
+                className="w-24 shrink-0"
+              />
+              <span className="text-xs text-muted-foreground select-none">{t("seconds")}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Group 6: Privacy & Logs */}
+      <section className="space-y-2">
+        <div className="px-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground select-none">
+            {getSettingsLabel("privacyAndLogs", "Privacy & System Logs")}
+          </h3>
+        </div>
+
+        <div className="rounded-xl border border-border/40 bg-card overflow-hidden shadow-none divide-y divide-border/40">
+          <AccountEmailVisibilitySetting />
+
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-surface-muted/30 transition-colors">
+            <div className="min-w-0 flex-1 pr-4">
+              <p className="text-sm font-medium text-foreground">{t("hideHealthLogs")}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t("hideHealthLogsDesc")}</p>
             </div>
             <Toggle
               checked={settings.hideHealthCheckLogs === true}
@@ -420,66 +576,53 @@ export default function AppearanceTab() {
             />
           </div>
         </div>
+      </section>
 
-        <div className="pt-4 border-t border-border">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-control bg-bg-subtle text-text-muted">
-              <Icon name="badge" size={20} />
-            </span>
-            <div>
-              <h4 className="font-semibold">{t("whitelabeling")}</h4>
-              <p className="text-sm text-text-muted">{t("whitelabelingDesc")}</p>
+      {/* Group 7: Branding & Whitelabeling */}
+      <section className="space-y-2">
+        <div className="px-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground select-none">
+            {t("whitelabeling")}
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("whitelabelingDesc")}</p>
+        </div>
+
+        <div className="rounded-xl border border-border/40 bg-card overflow-hidden shadow-none divide-y divide-border/40">
+          {/* App Name */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 py-3.5 hover:bg-surface-muted/30 transition-colors">
+            <div className="min-w-0 flex-1 pr-4">
+              <p className="text-sm font-medium text-foreground">{t("appName")}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t("appNameDesc")}</p>
             </div>
+            <Input
+              type="text"
+              aria-label={t("appName")}
+              value={settings.instanceName || "OmniRoute"}
+              onChange={(e) => updateSetting("instanceName", e.target.value)}
+              placeholder="OmniRoute"
+              maxLength={100}
+              className="w-full sm:w-56 shrink-0"
+            />
           </div>
 
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">{t("appName")}</p>
-                <p className="text-sm text-text-muted">{t("appNameDesc")}</p>
-              </div>
+          {/* Custom Logo */}
+          <div className="px-4 py-3.5 space-y-3 hover:bg-surface-muted/30 transition-colors">
+            <div>
+              <p className="text-sm font-medium text-foreground">{t("customLogo")}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t("customLogoDesc")}</p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
               <Input
                 type="text"
-                aria-label={t("appName")}
-                value={settings.instanceName || "OmniRoute"}
-                onChange={(e) => updateSetting("instanceName", e.target.value)}
-                placeholder="OmniRoute"
-                maxLength={100}
-                className="w-48 shrink-0"
+                aria-label={t("customLogo")}
+                value={settings.customLogoUrl || ""}
+                onChange={(e) => updateSetting("customLogoUrl", e.target.value)}
+                className="flex-1"
+                placeholder="https://example.com/logo.png"
+                maxLength={2000}
               />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <div>
-                <p className="font-medium">{t("customLogo")}</p>
-                <p className="text-sm text-text-muted">{t("customLogoDesc")}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="text"
-                  aria-label={t("customLogo")}
-                  value={settings.customLogoUrl || ""}
-                  onChange={(e) => updateSetting("customLogoUrl", e.target.value)}
-                  className="flex-1"
-                  placeholder="https://example.com/logo.png"
-                  maxLength={2000}
-                />
-                {(settings.customLogoUrl || settings.customLogoBase64) && (
-                  <img
-                    src={settings.customLogoBase64 || settings.customLogoUrl}
-                    alt={t("appearanceLogoPreviewAlt")}
-                    className="h-10 w-10 rounded border border-border object-contain bg-surface"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <p className="font-medium">{t("uploadLogo")}</p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <Input
                   ref={logoFileRef}
                   type="file"
@@ -520,6 +663,7 @@ export default function AppearanceTab() {
                 />
                 <Button
                   variant="outline"
+                  size="sm"
                   icon="upload"
                   onClick={() => logoFileRef.current?.click()}
                 >
@@ -527,6 +671,7 @@ export default function AppearanceTab() {
                 </Button>
                 <Button
                   variant="secondary"
+                  size="sm"
                   onClick={() => {
                     updateSetting("customLogoUrl", "");
                     updateSetting("customLogoBase64", "");
@@ -535,54 +680,47 @@ export default function AppearanceTab() {
                   {t("resetLogo")}
                 </Button>
               </div>
-              {uploadError?.target === "logo" && (
-                <p role="alert" className="text-sm text-error">
-                  {uploadError.message}
-                </p>
-              )}
-              {(settings.customLogoBase64 || settings.customLogoUrl) && (
-                <div className="mt-2 p-3 bg-bg-subtle rounded-lg">
-                  <p className="text-xs text-text-muted mb-2">{t("logoPreview")}</p>
-                  <img
-                    src={settings.customLogoBase64 || settings.customLogoUrl}
-                    alt={t("appearanceLogoPreviewAlt")}
-                    className="h-12 w-auto max-w-full rounded"
-                  />
-                </div>
-              )}
             </div>
 
-            <div className="flex flex-col gap-2 pt-4 border-t border-border">
-              <div>
-                <p className="font-medium">{t("customFavicon")}</p>
-                <p className="text-sm text-text-muted">{t("customFaviconDesc")}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="text"
-                  aria-label={t("customFavicon")}
-                  value={settings.customFaviconUrl || ""}
-                  onChange={(e) => updateSetting("customFaviconUrl", e.target.value)}
-                  className="flex-1"
-                  placeholder="https://example.com/favicon.ico"
-                  maxLength={2000}
+            {uploadError?.target === "logo" && (
+              <p role="alert" className="text-xs text-rose-500 font-medium">
+                {uploadError.message}
+              </p>
+            )}
+
+            {(settings.customLogoBase64 || settings.customLogoUrl) && (
+              <div className="flex items-center gap-3 p-2.5 bg-surface-muted/50 rounded-lg border border-border/40 w-fit">
+                <img
+                  src={settings.customLogoBase64 || settings.customLogoUrl}
+                  alt={t("appearanceLogoPreviewAlt")}
+                  className="h-8 w-auto max-w-[160px] rounded object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
                 />
-                {(settings.customFaviconUrl || settings.customFaviconBase64) && (
-                  <img
-                    src={settings.customFaviconBase64 || settings.customFaviconUrl}
-                    alt={t("appearanceFaviconPreviewAlt")}
-                    className="h-10 w-10 rounded border border-border object-contain bg-surface"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                )}
+                <span className="text-[11px] text-muted-foreground">{t("logoPreview")}</span>
               </div>
+            )}
+          </div>
+
+          {/* Custom Favicon */}
+          <div className="px-4 py-3.5 space-y-3 hover:bg-surface-muted/30 transition-colors">
+            <div>
+              <p className="text-sm font-medium text-foreground">{t("customFavicon")}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t("customFaviconDesc")}</p>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <p className="font-medium">{t("uploadFavicon")}</p>
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+              <Input
+                type="text"
+                aria-label={t("customFavicon")}
+                value={settings.customFaviconUrl || ""}
+                onChange={(e) => updateSetting("customFaviconUrl", e.target.value)}
+                className="flex-1"
+                placeholder="https://example.com/favicon.ico"
+                maxLength={2000}
+              />
+              <div className="flex items-center gap-2 shrink-0">
                 <Input
                   ref={faviconFileRef}
                   type="file"
@@ -629,6 +767,7 @@ export default function AppearanceTab() {
                 />
                 <Button
                   variant="outline"
+                  size="sm"
                   icon="upload"
                   onClick={() => faviconFileRef.current?.click()}
                 >
@@ -636,6 +775,7 @@ export default function AppearanceTab() {
                 </Button>
                 <Button
                   variant="secondary"
+                  size="sm"
                   onClick={() => {
                     updateSetting("customFaviconUrl", "");
                     updateSetting("customFaviconBase64", "");
@@ -644,47 +784,53 @@ export default function AppearanceTab() {
                   {t("resetFavicon")}
                 </Button>
               </div>
-              {uploadError?.target === "favicon" && (
-                <p role="alert" className="text-sm text-error">
-                  {uploadError.message}
-                </p>
-              )}
-              {(settings.customFaviconBase64 || settings.customFaviconUrl) && (
-                <div className="mt-2 p-3 bg-bg-subtle rounded-lg">
-                  <p className="text-xs text-text-muted mb-2">{t("faviconPreview")}</p>
-                  <img
-                    src={settings.customFaviconBase64 || settings.customFaviconUrl}
-                    alt={t("appearanceFaviconPreviewAlt")}
-                    className="h-8 w-8 rounded"
-                  />
-                </div>
-              )}
             </div>
 
-            {isElectron && (
-              <div className="flex items-center justify-between pt-4 border-t border-border">
-                <div>
-                  <p className="font-medium">{t("startOnLogin")}</p>
-                  <p className="text-xs text-text-muted mt-0.5">{t("startOnLoginDesc")}</p>
-                </div>
-                <Toggle
-                  checked={autostartEnabled}
-                  ariaLabel={t("startOnLogin")}
-                  onChange={async (checked) => {
-                    if (checked) {
-                      const success = await window.electronAPI?.enableAutostart();
-                      if (success) setAutostartEnabled(true);
-                    } else {
-                      const success = await window.electronAPI?.disableAutostart();
-                      if (success) setAutostartEnabled(false);
-                    }
+            {uploadError?.target === "favicon" && (
+              <p role="alert" className="text-xs text-rose-500 font-medium">
+                {uploadError.message}
+              </p>
+            )}
+
+            {(settings.customFaviconBase64 || settings.customFaviconUrl) && (
+              <div className="flex items-center gap-3 p-2 bg-surface-muted/50 rounded-lg border border-border/40 w-fit">
+                <img
+                  src={settings.customFaviconBase64 || settings.customFaviconUrl}
+                  alt={t("appearanceFaviconPreviewAlt")}
+                  className="size-6 rounded object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
                   }}
                 />
+                <span className="text-[11px] text-muted-foreground">{t("faviconPreview")}</span>
               </div>
             )}
           </div>
+
+          {/* Electron Start on Login */}
+          {isElectron && (
+            <div className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-surface-muted/30 transition-colors">
+              <div className="min-w-0 flex-1 pr-4">
+                <p className="text-sm font-medium text-foreground">{t("startOnLogin")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("startOnLoginDesc")}</p>
+              </div>
+              <Toggle
+                checked={autostartEnabled}
+                ariaLabel={t("startOnLogin")}
+                onChange={async (checked) => {
+                  if (checked) {
+                    const success = await window.electronAPI?.enableAutostart();
+                    if (success) setAutostartEnabled(true);
+                  } else {
+                    const success = await window.electronAPI?.disableAutostart();
+                    if (success) setAutostartEnabled(false);
+                  }
+                }}
+              />
+            </div>
+          )}
         </div>
-      </div>
-    </Card>
+      </section>
+    </div>
   );
 }

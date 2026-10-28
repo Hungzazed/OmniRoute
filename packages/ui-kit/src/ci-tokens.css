@@ -220,12 +220,12 @@
   --ci-radius-2xl: 1.5rem;
   --ci-radius-full: 9999px;
   --ci-radius-control: var(--ci-radius-md);
-  --ci-radius-surface: var(--ci-radius-sm);
+  --ci-radius-surface: var(--ci-radius-lg);
   --ci-radius-pill: var(--ci-radius-full);
   --ci-border-hairline: 1px;
   --ci-border-default: 1px;
   --ci-border-strong: 2px;
-  --ci-icon-stroke-width: 2;
+  --ci-icon-stroke-width: 1.75;
   --ci-icon-library: lucide;
   --ci-shadow-xs: 0 1px 2px rgb(4 13 16 / 0.06);
   --ci-shadow-sm:

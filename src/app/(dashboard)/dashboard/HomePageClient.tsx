@@ -108,11 +108,11 @@ function mergeUpdateStep(steps: UpdateStep[], nextStep: UpdateStep) {
 
 // Quick-start link classes, extracted so each <Link> still fits on one line with
 // prefetch={false} (#8281) — this file is size-frozen.
-const INLINE_LINK = "text-primary hover:underline";
+const INLINE_LINK = "text-primary hover:underline font-medium";
 // The kit WorkflowGuide numbers its steps itself; the step titles carry a "1. " prefix.
 const stripStepNumber = (title: string) => title.replace(/^\s*\d+[.)]\s*/, "");
 const DOCS_LINK =
-  "hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-text-muted hover:text-text-main hover:bg-bg-subtle transition-colors";
+  "hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border/40 text-text-muted hover:text-text-main hover:bg-surface-subtle transition-colors";
 
 // Stable no-op subscription for useSyncExternalStore reads of never-changing
 // browser globals (location.origin does not change without a full navigation).
@@ -790,7 +790,7 @@ export default function HomePageClient({ machineId }: HomePageClientProps) {
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-6">
         <CardSkeleton />
         <CardSkeleton />
       </div>
@@ -800,15 +800,15 @@ export default function HomePageClient({ machineId }: HomePageClientProps) {
   const currentEndpoint = baseUrl;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       {/* Update Progress Overlay */}
       {showUpdateOverlay && (
-        <div className="fixed inset-0 z-[999] bg-[var(--ci-color-overlay)] backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-bg-main border border-border rounded-2xl shadow-2xl max-w-md w-full p-6">
+        <div className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-surface border border-border/40 rounded-2xl shadow-xl max-w-md w-full p-6 text-text-main">
             <div className="flex items-center gap-3 mb-5">
-              <Icon name="progress_activity" size={28} className="text-primary animate-spin" />
+              <Icon name="progress_activity" size={26} className="text-primary animate-spin" />
               <div>
-                <h3 className="text-lg font-bold">
+                <h3 className="text-base font-semibold tracking-tight text-text-main">
                   {updatePhase === "done"
                     ? t("updateCompleteTitle")
                     : updatePhase === "failed"
@@ -836,10 +836,10 @@ export default function HomePageClient({ machineId }: HomePageClientProps) {
                       s.status === "running"
                         ? "border-primary/40 bg-primary/5"
                         : s.status === "done"
-                          ? "border-success/30 bg-success/5"
+                          ? "border-emerald-500/30 bg-emerald-500/5"
                           : s.status === "failed"
-                            ? "border-error/30 bg-error/5"
-                            : "border-border bg-bg-subtle"
+                            ? "border-rose-500/30 bg-rose-500/5"
+                            : "border-border/40 bg-surface-subtle/50"
                     }`}
                   >
                     {s.status === "running" ? (
@@ -849,9 +849,9 @@ export default function HomePageClient({ machineId }: HomePageClientProps) {
                         className="text-primary animate-spin"
                       />
                     ) : s.status === "done" ? (
-                      <Icon name="check_circle" size={18} className="text-success" />
+                      <Icon name="check_circle" size={18} className="text-emerald-500" />
                     ) : s.status === "failed" ? (
-                      <Icon name="error" size={18} className="text-error" />
+                      <Icon name="error" size={18} className="text-rose-500" />
                     ) : (
                       <Icon name="warning" size={18} className="text-warning" />
                     )}
@@ -864,7 +864,7 @@ export default function HomePageClient({ machineId }: HomePageClientProps) {
 
               {/* Error message */}
               {updateSteps.find((s) => s.step === "error") && (
-                <div className="mt-1 px-3 py-2.5 rounded-lg border border-error/30 bg-error/5 text-error">
+                <div className="mt-1 px-3 py-2.5 rounded-lg border border-rose-500/30 bg-rose-500/5 text-rose-600 dark:text-rose-400">
                   <p className="text-xs font-mono break-all">
                     {updateSteps.find((s) => s.step === "error")?.message}
                   </p>
@@ -873,8 +873,8 @@ export default function HomePageClient({ machineId }: HomePageClientProps) {
 
               {/* Completion message */}
               {updatePhase === "done" && (
-                <div className="mt-1 px-3 py-2.5 rounded-lg border border-success/30 bg-success/5">
-                  <p className="text-sm font-semibold text-success flex items-center gap-2">
+                <div className="mt-1 px-3 py-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/5">
+                  <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
                     <Icon name="check_circle" size={18} />
                     {updateSteps.find((s) => s.step === "complete")?.message || t("updateComplete")}
                   </p>
@@ -912,7 +912,7 @@ export default function HomePageClient({ machineId }: HomePageClientProps) {
       {/* Update Notification Banner */}
       {versionInfo?.updateAvailable && !showUpdateOverlay && (
         <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-surface px-5 py-4 shadow-xs text-text-main">
+          <div className="flex flex-col gap-3 rounded-xl border border-border/40 bg-surface/80 backdrop-blur-md px-5 py-4 shadow-xs text-text-main">
             <div className="flex min-h-[48px] items-center justify-between">
               <div className="flex min-w-0 items-center gap-4">
                 <Icon
@@ -1073,6 +1073,7 @@ export default function HomePageClient({ machineId }: HomePageClientProps) {
           />
           <WorkflowGuide
             label={t("quickStart")}
+            className="!bg-surface/80 !border-border/40 rounded-xl shadow-xs backdrop-blur-md"
             items={[
               {
                 id: "step1",
@@ -1143,7 +1144,7 @@ export default function HomePageClient({ machineId }: HomePageClientProps) {
       )}
 
       {showProviderTopologyOnHome && (
-        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
           <HomeProviderTopologySection
             providers={topologyProviders}
             lastProvider={lastProvider}
@@ -1193,7 +1194,7 @@ function ProviderOverviewCard({
     <Button
       variant="outline"
       onClick={onClick}
-      className="block h-auto min-h-0 w-full p-3 text-left font-normal"
+      className="block h-auto min-h-0 w-full p-3 text-left font-normal rounded-xl border border-border/40 bg-surface/80 hover:bg-surface-subtle transition-colors shadow-xs"
     >
       <div className="flex items-center gap-2.5">
         <div
@@ -1301,7 +1302,7 @@ function ProviderModelsModal({
             {models.map((m) => (
               <div
                 key={m.fullModel}
-                className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-surface/50 transition-colors group"
+                className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-surface-subtle transition-colors group"
               >
                 <div className="min-w-0 flex-1">
                   <p className="font-mono text-sm text-text-main truncate">{m.fullModel}</p>
@@ -1326,7 +1327,7 @@ function ProviderModelsModal({
         )}
 
         {/* Actions */}
-        <div className="flex gap-2 pt-2 border-t border-border">
+        <div className="flex gap-2 pt-2 border-t border-border/40">
           <Button
             variant="secondary"
             fullWidth

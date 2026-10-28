@@ -36,35 +36,39 @@ export function HomeProviderTopologySection({
   const activeProviderCount = new Set(activeRequests.map(({ provider }) => provider)).size;
 
   return (
-    <Card>
-      <div className="flex items-center justify-between mb-3">
+    <Card className="rounded-xl border border-border/40 bg-surface/80 backdrop-blur-md p-4 sm:p-5 shadow-xs">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
         <div>
-          <h2 className="text-base font-semibold">{t("providerTopology")}</h2>
-          <p className="text-xs text-text-muted">
+          <h2 className="text-sm sm:text-base font-semibold tracking-tight text-text-main">
+            {t("providerTopology")}
+          </h2>
+          <p className="text-xs text-text-muted mt-0.5">
             {t("activeError", { active: activeProviderCount, errors: errorProvider ? 1 : 0 })}
           </p>
         </div>
-        <div className="flex items-center gap-3 text-[11px] text-text-muted">
+        <div className="flex items-center gap-3 text-xs text-text-muted">
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-success" />
+            <span className="size-2 rounded-full bg-emerald-500" />
             {t("topologyLegendActive")}
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-warning" />
+            <span className="size-2 rounded-full bg-amber-500" />
             {t("topologyLegendRecent")}
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-error" />
+            <span className="size-2 rounded-full bg-rose-500" />
             {t("topologyLegendError")}
           </span>
         </div>
       </div>
-      <ProviderTopology
-        providers={providers}
-        activeRequests={activeRequests}
-        lastProvider={lastProvider}
-        errorProvider={errorProvider}
-      />
+      <div className="min-w-0 flex-1">
+        <ProviderTopology
+          providers={providers}
+          activeRequests={activeRequests}
+          lastProvider={lastProvider}
+          errorProvider={errorProvider}
+        />
+      </div>
     </Card>
   );
 }

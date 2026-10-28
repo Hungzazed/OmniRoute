@@ -16,6 +16,7 @@ import {
 /**
  * Home-page "Recent Requests" panel — the live request feed that sits beside the
  * Provider Topology graph (parity with 9Router's Usage view).
+ * Styled following Apple Minimalist UI guidelines.
  *
  * ## Data source
  * Fed by POLLING `GET /api/usage/call-logs?limit=N` every ~3s, NOT by the live
@@ -89,9 +90,9 @@ function timeAgo(timestamp: string | undefined, nowMs: number): string {
 }
 
 const STATE_DOT: Record<RequestState, string> = {
-  active: "bg-primary animate-pulse",
-  error: "bg-error",
-  ok: "bg-success",
+  active: "bg-primary animate-pulse ring-2 ring-primary/20",
+  error: "bg-rose-500",
+  ok: "bg-emerald-500",
 };
 
 export default function HomeRecentRequests({ enabled = true }: { enabled?: boolean }) {
@@ -154,15 +155,23 @@ export default function HomeRecentRequests({ enabled = true }: { enabled?: boole
   }, [enabled, load]);
 
   return (
-    <Card padding="sm" className="flex min-w-0 flex-col overflow-hidden h-[300px] sm:h-[420px]">
-      <div className="pb-2 mb-1 border-b border-border shrink-0">
-        <span className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+    <Card
+      padding="none"
+      className="flex min-w-0 flex-col overflow-hidden h-[300px] sm:h-[420px] rounded-xl border border-border/40 bg-surface/80 backdrop-blur-md p-3.5 sm:p-4 shadow-xs"
+    >
+      <div className="flex items-center justify-between pb-2.5 mb-1 border-b border-border/40 shrink-0">
+        <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
           {t("recentRequests")}
         </span>
+        {rows.length > 0 && (
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-mono font-medium bg-surface-subtle text-text-muted border border-border/30">
+            {rows.length}
+          </span>
+        )}
       </div>
 
       {loaded && rows.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center text-sm text-text-muted">
+        <div className="flex-1 flex items-center justify-center text-xs text-text-muted">
           {t("recentRequestsEmpty")}
         </div>
       ) : (
@@ -175,16 +184,16 @@ export default function HomeRecentRequests({ enabled = true }: { enabled?: boole
             containerClassName="overflow-visible rounded-none border-0"
             scrollbarLabel={t("recentRequests")}
           >
-            <TableHeader className="sticky top-0 z-10 bg-surface">
-              <TableRow className="border-b border-border text-text-muted">
-                <TableHead className="w-2 py-1.5" />
-                <TableHead className="py-1.5 text-left font-semibold">
+            <TableHeader className="sticky top-0 z-10 bg-surface/95 backdrop-blur-xs">
+              <TableRow className="border-b border-border/40 text-text-muted hover:bg-transparent">
+                <TableHead className="w-2 py-1.5 pl-1" />
+                <TableHead className="py-1.5 text-left font-medium">
                   {t("recentRequestsModel")}
                 </TableHead>
-                <TableHead className="py-1.5 text-right font-semibold whitespace-nowrap">
+                <TableHead className="py-1.5 text-right font-medium whitespace-nowrap">
                   {t("recentRequestsTokens")}
                 </TableHead>
-                <TableHead className="py-1.5 text-right font-semibold">
+                <TableHead className="py-1.5 text-right font-medium pr-1">
                   {t("recentRequestsWhen")}
                 </TableHead>
               </TableRow>
@@ -193,23 +202,28 @@ export default function HomeRecentRequests({ enabled = true }: { enabled?: boole
               {rows.map((row, i) => {
                 const state = requestState(row);
                 return (
-                  <TableRow key={row.id || i}>
-                    <TableCell className="py-1.5">
+                  <TableRow
+                    key={row.id || i}
+                    className="border-b border-border/30 last:border-b-0 hover:bg-surface-subtle/50 transition-colors"
+                  >
+                    <TableCell className="py-1.5 pl-1">
                       <span className={`block size-1.5 rounded-full ${STATE_DOT[state]}`} />
                     </TableCell>
                     <TableCell
-                      className="py-1.5 font-mono truncate max-w-[140px]"
+                      className="py-1.5 font-mono text-xs text-text-main truncate max-w-[140px]"
                       title={row.model || ""}
                     >
                       {row.model || "—"}
                     </TableCell>
-                    <TableCell className="py-1.5 text-right whitespace-nowrap">
+                    <TableCell className="py-1.5 text-right whitespace-nowrap font-mono text-[11px]">
                       <span className="text-primary">{fmtCompact(row.tokens?.in)}↑</span>{" "}
-                      <span className="text-success">{fmtCompact(row.tokens?.out)}↓</span>
+                      <span className="text-emerald-500 dark:text-emerald-400">
+                        {fmtCompact(row.tokens?.out)}↓
+                      </span>
                     </TableCell>
-                    <TableCell className="py-1.5 text-right whitespace-nowrap text-text-muted">
+                    <TableCell className="py-1.5 text-right whitespace-nowrap text-text-muted text-[11px] pr-1">
                       {state === "active" ? (
-                        <span className="text-primary">•••</span>
+                        <span className="text-primary font-mono animate-pulse">•••</span>
                       ) : (
                         timeAgo(row.timestamp, nowMs)
                       )}

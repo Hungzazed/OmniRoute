@@ -44,25 +44,25 @@ export default function ApiKeyFilterBar({
     {
       value: "active",
       label: t("filterStatusActive"),
-      dotColor: "bg-success",
+      dotColor: "bg-emerald-500",
       count: counts.active,
     },
     {
       value: "disabled",
       label: t("filterStatusDisabled"),
-      dotColor: "bg-text-muted",
+      dotColor: "bg-neutral-400",
       count: counts.disabled,
     },
     {
       value: "banned",
       label: t("filterStatusBanned"),
-      dotColor: "bg-error",
+      dotColor: "bg-rose-500",
       count: counts.banned,
     },
     {
       value: "expired",
       label: t("filterStatusExpired"),
-      dotColor: "bg-warning",
+      dotColor: "bg-amber-500",
       count: counts.expired,
     },
   ];
@@ -77,25 +77,25 @@ export default function ApiKeyFilterBar({
     {
       value: "standard",
       label: t("filterTypeStandard"),
-      dotColor: "bg-text-muted",
+      dotColor: "bg-neutral-400",
       count: counts.standard,
     },
     {
       value: "manage",
       label: t("filterTypeManage"),
-      dotColor: "bg-error",
+      dotColor: "bg-rose-500",
       count: counts.manage,
     },
     {
       value: "restricted",
       label: t("filterTypeRestricted"),
-      dotColor: "bg-warning",
+      dotColor: "bg-amber-500",
       count: counts.restricted,
     },
   ];
 
   return (
-    <Card padding="sm">
+    <Card padding="sm" className="border-border/40 bg-surface shadow-none">
       <div className="flex flex-col gap-3">
         {/* Row 1: Search + Active Only toggle */}
         <div className="flex items-center gap-3 flex-wrap">
@@ -113,7 +113,7 @@ export default function ApiKeyFilterBar({
                 variant="ghost"
                 size="icon-sm"
                 onClick={() => onSearchChange("")}
-                className="absolute inset-y-0 right-1 my-auto text-text-muted"
+                className="absolute inset-y-0 right-1 my-auto text-text-muted hover:text-text-main"
                 aria-label={tc("clear")}
                 icon="close"
               />
@@ -130,12 +130,12 @@ export default function ApiKeyFilterBar({
               }
             }}
             label={t("activeOnly")}
-            className="rounded-lg border border-border bg-bg-subtle px-3 py-1.5"
+            className="rounded-lg border border-border/40 bg-surface-muted/40 px-3 py-1.5"
           />
         </div>
 
         {/* STATUS + TYPE chips — single row on >=1280px, wraps below on smaller */}
-        <div className="border-t border-border pt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="border-t border-border/40 pt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mr-1">
               {t("filterStatus")}:
@@ -161,7 +161,7 @@ export default function ApiKeyFilterBar({
             ))}
           </div>
 
-          <div aria-hidden="true" className="hidden xl:block h-6 w-px bg-border self-center" />
+          <div aria-hidden="true" className="hidden xl:block h-6 w-px bg-border/40 self-center" />
 
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mr-1">

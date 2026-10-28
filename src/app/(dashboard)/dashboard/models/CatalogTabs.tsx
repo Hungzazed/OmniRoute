@@ -1,6 +1,7 @@
 "use client";
 
 import { Tabs, TabsList, TabsTrigger } from "@omniroute/ui-kit/tabs";
+import { cn } from "@/shared/utils/cn";
 import type { CatalogTab } from "./catalogUrlState";
 
 const TAB_ORDER: CatalogTab[] = ["models", "combos"];
@@ -14,9 +15,9 @@ export function catalogPanelId(tab: CatalogTab): string {
 }
 
 /**
- * Kit underline Tabs (WAI-ARIA tablist; the kit owns roving tabindex and Arrow/Home/End).
- * The tab/panel ids stay the page's own (`tab-*` / `panel-*`) because the panels are
- * rendered by the page, outside this component.
+ * Apple macOS/iOS-style Segmented Control (WAI-ARIA tablist; the kit owns roving
+ * tabindex and Arrow/Home/End keyboard navigation).
+ * Rendered with clean surface-muted track, subtle border, and raised active segment.
  */
 export default function CatalogTabs({
   activeTab,
@@ -30,24 +31,37 @@ export default function CatalogTabs({
   ariaLabel: string;
 }) {
   return (
-    <Tabs
-      variant="underline"
-      value={activeTab}
-      onValueChange={(next) => onSelect(next as CatalogTab)}
-      className="mt-2"
-    >
-      <TabsList aria-label={ariaLabel}>
-        {TAB_ORDER.map((tab) => (
-          <TabsTrigger
-            key={tab}
-            value={tab}
-            id={catalogTabId(tab)}
-            aria-controls={tab === activeTab ? catalogPanelId(tab) : undefined}
-          >
-            {labels[tab]}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-    </Tabs>
+    <div className="mt-2 flex items-center">
+      <Tabs
+        value={activeTab}
+        onValueChange={(next) => onSelect(next as CatalogTab)}
+        className="inline-flex"
+      >
+        <TabsList
+          aria-label={ariaLabel}
+          className="inline-flex h-9 items-center gap-1 rounded-lg bg-surface-muted p-1 border border-border/40 shadow-xs"
+        >
+          {TAB_ORDER.map((tab) => {
+            const isActive = tab === activeTab;
+            return (
+              <TabsTrigger
+                key={tab}
+                value={tab}
+                id={catalogTabId(tab)}
+                aria-controls={isActive ? catalogPanelId(tab) : undefined}
+                className={cn(
+                  "relative inline-flex h-7 items-center justify-center rounded-md px-3.5 text-xs sm:text-sm font-medium transition-all duration-150 ease-out",
+                  isActive
+                    ? "!bg-surface !text-text-main !border-transparent shadow-xs font-semibold"
+                    : "!bg-transparent !text-text-muted hover:!text-text-main !border-transparent"
+                )}
+              >
+                {labels[tab]}
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
+      </Tabs>
+    </div>
   );
 }

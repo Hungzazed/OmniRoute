@@ -1170,7 +1170,7 @@
   .ci-table__header { background: var(--ci-color-surface-subtle); }
   .ci-table__row { border-bottom: var(--ci-border-default) solid var(--ci-color-border-subtle); transition: background var(--ci-duration-fast) var(--ci-ease-standard); }
   .ci-table__body .ci-table__row:last-child { border-bottom: 0; }
-  .ci-table__body .ci-table__row:hover { background: linear-gradient(90deg, var(--ci-color-accent-surface-subtle), var(--ci-color-surface)); }
+  .ci-table__body .ci-table__row:hover { background: var(--ci-color-surface-muted); }
   .ci-table__row[data-state="selected"] { background: var(--ci-color-accent-surface-strong); }
   .ci-table__head,
   .ci-table__cell { height: 2.75rem; padding: var(--ci-space-2) var(--ci-space-3); text-align: left; vertical-align: middle; white-space: nowrap; }
@@ -1764,8 +1764,8 @@
   .ci-page-header { display: grid; gap: var(--ci-space-4); font-family: var(--ci-font-ui); }
   .ci-page-header__row { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--ci-space-6); }
   .ci-page-header__content { display: grid; min-width: 0; gap: var(--ci-space-2); }
-  .ci-page-header__title { margin: 0; color: var(--ci-color-heading); font-family: var(--ci-font-display); font-size: clamp(3rem, 6vw, 5.5rem); font-weight: var(--ci-font-weight-regular); line-height: 0.92; letter-spacing: var(--ci-letter-spacing-display); }
-  .ci-page-header[data-compact="true"] .ci-page-header__title { font-size: clamp(2.25rem, 4vw, 3.5rem); }
+  .ci-page-header__title { margin: 0; color: var(--ci-color-heading); font-family: var(--ci-font-display); font-size: 1.75rem; font-weight: var(--ci-font-weight-semibold); line-height: 1.25; letter-spacing: -0.02em; }
+  .ci-page-header[data-compact="true"] .ci-page-header__title { font-size: 1.375rem; }
   .ci-page-header__description { max-width: 42rem; margin: 0; color: var(--ci-color-text-muted); font-size: var(--ci-font-size-sm); line-height: var(--ci-line-height-body); }
   .ci-page-header__actions,
   .ci-section-header__actions { display: flex; flex: none; flex-wrap: wrap; align-items: center; gap: var(--ci-space-2); }
@@ -2485,7 +2485,7 @@
     .ci-tabs--vertical { flex-direction: column; }
     .ci-page-header__row,
     .ci-section-header { align-items: flex-start; flex-direction: column; }
-    .ci-page-header__title { font-size: 3rem; }
+    .ci-page-header__title { font-size: 1.5rem; }
     .ci-pagination__link--edge span { display: none; }
     .ci-playground-page { padding: var(--ci-space-5); }
     .ci-playground-page__header,

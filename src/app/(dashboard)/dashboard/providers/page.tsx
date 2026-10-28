@@ -901,7 +901,7 @@ function ProvidersPageContent() {
         <DeprecatedProviderBanner />
 
         {showFirstProviderHint && (
-          <Card padding="lg">
+          <Card padding="lg" className="rounded-xl border border-border/50 shadow-xs bg-card">
             <KitEmptyState
               icon={<Icon name="dns" size={32} />}
               title={t("addFirstProvider") || "Add your first provider"}
@@ -958,20 +958,20 @@ function ProvidersPageContent() {
         {expirations?.summary &&
           (expirations.summary.expired > 0 || expirations.summary.expiringSoon > 0) && (
             <div
-              className={`p-4 rounded-xl flex items-start gap-3 border ${
-                expirations.summary.expired > 0
-                  ? "bg-error/10 border-error/20"
-                  : "bg-warning/10 border-warning/20"
+              className={`p-4 rounded-xl flex items-start gap-3 border bg-card shadow-xs ${
+                expirations.summary.expired > 0 ? "border-error/30" : "border-warning/30"
               }`}
             >
               <Icon
                 name={expirations.summary.expired > 0 ? "error" : "warning"}
-                size={24}
-                className={expirations.summary.expired > 0 ? "text-error" : "text-warning"}
+                size={20}
+                className={
+                  expirations.summary.expired > 0 ? "text-error mt-0.5" : "text-warning mt-0.5"
+                }
               />
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <h3
-                  className={`font-semibold ${expirations.summary.expired > 0 ? "text-error" : "text-warning"}`}
+                  className={`text-sm font-semibold tracking-tight ${expirations.summary.expired > 0 ? "text-error" : "text-warning"}`}
                 >
                   {expirations.summary.expired > 0
                     ? t("expirationBannerExpired", { count: expirations.summary.expired })
@@ -979,7 +979,7 @@ function ProvidersPageContent() {
                         count: expirations.summary.expiringSoon,
                       })}
                 </h3>
-                <p className="text-sm mt-1 opacity-80 text-text-main">
+                <p className="text-xs mt-1 text-text-muted leading-relaxed">
                   {expirations.summary.expired > 0
                     ? t("expirationBannerExpiredDesc")
                     : t("expirationBannerExpiringSoonDesc")}

@@ -131,7 +131,7 @@ export default function NoAuthProvidersSection({
             {blockedEntries.map(({ providerId, provider }) => (
               <div
                 key={providerId}
-                className="flex items-center justify-between gap-2 rounded-xl border border-border bg-bg-subtle px-3 py-2.5 opacity-80"
+                className="flex items-center justify-between gap-2 rounded-xl border border-border/50 bg-card px-3.5 py-2.5 shadow-xs hover:border-border transition-all"
               >
                 <div className="flex min-w-0 flex-col">
                   <span className="truncate text-sm font-medium text-text-main">
@@ -146,7 +146,7 @@ export default function NoAuthProvidersSection({
                   size="sm"
                   variant="outline"
                   onClick={() => handleUnblock(providerId)}
-                  className="shrink-0"
+                  className="shrink-0 text-xs font-medium rounded-md border-border/60 hover:bg-surface-muted"
                   title={t("enableProvider")}
                 >
                   {t("enableProvider")}
