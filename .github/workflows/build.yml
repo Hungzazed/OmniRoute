@@ -68,10 +68,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TARBALL=$(npm pack)
-          echo "Packed: $TARBALL"
+          npm pack --ignore-scripts
+          TARBALL=$(ls omniroute-*.tgz | head -n 1)
+          echo "Packed tarball: $TARBALL"
           TAG="v3.8.53-apple-ui"
-          gh release delete "$TAG" --yes || true
+          gh release delete "$TAG" --yes 2>/dev/null || true
           git tag -d "$TAG" 2>/dev/null || true
           git push origin ":refs/tags/$TAG" 2>/dev/null || true
           cat << 'EOF' > /tmp/release_notes.md
@@ -93,4 +94,4 @@ jobs:
           gh release create "$TAG" "$TARBALL" omniroute-build.tar.gz \
             --title "OmniRoute v3.8.53 (Apple Minimalist UI)" \
             --notes-file /tmp/release_notes.md \
-            --target "${{ github.ref }}"
+            --target "${{ github.sha }}"
