@@ -13,38 +13,38 @@
   color-scheme: light;
 
   /* --- observed brand seeds ------------------------------------------------ */
-  --ci-observed-canvas: #fbfbf8;
-  --ci-observed-ink: #040d10;
-  --ci-observed-body: #031a1b;
-  --ci-observed-muted: #575f5f;
-  --ci-observed-inverse: #f1f7f7;
+  --ci-observed-canvas: #ffffff;
+  --ci-observed-ink: #1d1d1f;
+  --ci-observed-body: #1d1d1f;
+  --ci-observed-muted: #86868b;
+  --ci-observed-inverse: #f5f5f7;
 
   /* --- primitive palette --------------------------------------------------- */
-  --ci-lime-50: #fbffe6;
-  --ci-lime-100: #f5ffc2;
-  --ci-lime-200: #ecff85;
-  --ci-lime-300: #e3ff4d;
-  --ci-lime-400: #d8ff00;
-  --ci-lime-500: #c2e600;
-  --ci-lime-600: #9bb800;
-  --ci-lime-700: #728700;
-  --ci-lime-800: #4d5c00;
-  --ci-lime-900: #303a00;
-  --ci-lime-950: #1b2100;
+  --ci-lime-50: #f0f7ff;
+  --ci-lime-100: #e0effe;
+  --ci-lime-200: #bae0fd;
+  --ci-lime-300: #7cc5fb;
+  --ci-lime-400: #007aff;
+  --ci-lime-500: #0062cc;
+  --ci-lime-600: #004fb3;
+  --ci-lime-700: #003d8a;
+  --ci-lime-800: #00306c;
+  --ci-lime-900: #00224d;
+  --ci-lime-950: #001226;
 
   --ci-neutral-0: #ffffff;
-  --ci-neutral-25: #fbfbf8;
-  --ci-neutral-50: #f7f7f2;
-  --ci-neutral-100: #eeeee8;
-  --ci-neutral-200: #dfe2dc;
-  --ci-neutral-300: #c7cbc5;
-  --ci-neutral-400: #9ca39f;
-  --ci-neutral-500: #737b78;
-  --ci-neutral-600: #575f5f;
-  --ci-neutral-700: #394446;
-  --ci-neutral-800: #1e2c2f;
-  --ci-neutral-900: #0d191c;
-  --ci-neutral-950: #040d10;
+  --ci-neutral-25: #ffffff;
+  --ci-neutral-50: #f5f5f7;
+  --ci-neutral-100: #e5e5ea;
+  --ci-neutral-200: #d1d1d6;
+  --ci-neutral-300: #c7c7cc;
+  --ci-neutral-400: #aeaeb2;
+  --ci-neutral-500: #8e8e93;
+  --ci-neutral-600: #636366;
+  --ci-neutral-700: #48484a;
+  --ci-neutral-800: #2c2c2e;
+  --ci-neutral-900: #1c1c1e;
+  --ci-neutral-950: #000000;
 
   /* --- semantic color ------------------------------------------------------ */
   --ci-color-background: var(--ci-neutral-25);
@@ -75,9 +75,9 @@
   --ci-color-control-thumb: var(--ci-color-foreground);
   --ci-color-control-thumb-checked: var(--ci-color-accent-foreground);
   /* Two deliberate divider levels: structural boundaries and dense rows. */
-  --ci-color-border-subtle: rgb(4 13 16 / 0.09);
-  --ci-color-border: rgb(4 13 16 / 0.24);
-  --ci-color-border-strong: rgb(4 13 16 / 0.48);
+  --ci-color-border-subtle: rgb(0 0 0 / 0.06);
+  --ci-color-border: rgb(0 0 0 / 0.12);
+  --ci-color-border-strong: rgb(0 0 0 / 0.24);
   /* Focus indicators need at least 3:1 contrast against the light canvas. */
   --ci-color-focus: var(--ci-lime-700);
   --ci-color-focus-ring: var(--ci-color-focus);
@@ -321,7 +321,7 @@
   --ci-color-text-muted: var(--ci-neutral-300);
   --ci-color-text-subtle: var(--ci-neutral-400);
   --ci-color-text-inverse: var(--ci-observed-inverse);
-  --ci-color-accent: var(--ci-lime-400);
+  --ci-color-accent: #0a84ff;
   --ci-color-accent-hover: var(--ci-lime-300);
   --ci-color-accent-active: var(--ci-lime-500);
   --ci-color-accent-foreground: var(--ci-neutral-950);
@@ -332,9 +332,9 @@
   --ci-color-control-active-fg: var(--ci-color-accent-foreground);
   --ci-color-control-thumb: var(--ci-color-foreground);
   --ci-color-control-thumb-checked: var(--ci-color-accent-foreground);
-  --ci-color-border-subtle: rgb(241 247 247 / 0.1);
-  --ci-color-border: rgb(241 247 247 / 0.24);
-  --ci-color-border-strong: rgb(241 247 247 / 0.46);
+  --ci-color-border-subtle: rgb(255 255 255 / 0.08);
+  --ci-color-border: rgb(255 255 255 / 0.14);
+  --ci-color-border-strong: rgb(255 255 255 / 0.28);
   --ci-color-focus: var(--ci-lime-600);
   --ci-color-focus-ring: var(--ci-color-focus);
   --ci-color-selection: rgb(216 255 0 / 0.18);

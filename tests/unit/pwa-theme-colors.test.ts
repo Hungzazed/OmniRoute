@@ -12,12 +12,12 @@ const read = (p: string) => fs.readFileSync(path.join(ROOT, p), "utf8");
 
 test("PWA_THEME_COLORS are the kit background hex for light and dark", async () => {
   const { PWA_THEME_COLORS } = await import("../../src/shared/constants/pwaThemeColors.ts");
-  assert.deepEqual({ ...PWA_THEME_COLORS }, { light: "#fbfbf8", dark: "#040d10" });
+  assert.deepEqual({ ...PWA_THEME_COLORS }, { light: "#ffffff", dark: "#000000" });
 
   // …and those are what --ci-color-background resolves to in the kit CSS.
   const kit = read("packages/ui-kit/src/ci-tokens.css");
-  assert.match(kit, /--ci-neutral-25:\s*#fbfbf8;/);
-  assert.match(kit, /--ci-neutral-950:\s*#040d10;/);
+  assert.match(kit, /--ci-neutral-25:\s*#ffffff;/);
+  assert.match(kit, /--ci-neutral-950:\s*#000000;/);
   assert.match(kit, /--ci-color-background:\s*var\(--ci-neutral-25\);/);
   const dark = kit.slice(kit.indexOf(':root[data-theme="dark"]'));
   assert.match(dark, /--ci-color-background:\s*var\(--ci-neutral-950\);/);
@@ -26,8 +26,8 @@ test("PWA_THEME_COLORS are the kit background hex for light and dark", async () 
 test("the web manifest uses the kit background, not the pre-kit #0b0f1a", async () => {
   const { default: manifest } = await import("../../src/app/manifest.ts");
   const m = manifest();
-  assert.equal(m.background_color, "#fbfbf8");
-  assert.equal(m.theme_color, "#fbfbf8");
+  assert.equal(m.background_color, "#ffffff");
+  assert.equal(m.theme_color, "#ffffff");
 });
 
 test("viewport.themeColor has one kit colour per prefers-color-scheme", () => {
