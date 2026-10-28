@@ -536,7 +536,7 @@ export default function Sidebar({ isMacElectron = false }: SidebarProps) {
             <span className={cn("truncate text-sm", active ? "font-semibold" : "font-medium")}>
               {item.label}
             </span>
-            {item.subtitle && <span className={subtitleClassName}>{item.subtitle}</span>}
+            
           </span>
         )}
       </>
