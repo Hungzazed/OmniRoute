@@ -24,12 +24,22 @@ export default function ApiKeyFilterChip({
       size="sm"
       aria-pressed={isActive}
       onClick={onClick}
-      className="gap-1.5 rounded-full text-xs"
+      className={cn(
+        "gap-1.5 rounded-full text-xs transition-all duration-150",
+        isActive
+          ? "bg-[#007AFF] text-white hover:bg-[#0071E3] border-transparent shadow-none font-medium"
+          : "bg-surface-muted/60 text-text-secondary hover:text-text-main hover:bg-surface-muted border-border/40 font-normal"
+      )}
     >
-      {dotColor && <span className={cn("size-2 rounded-full shrink-0", dotColor)} />}
+      {dotColor && <span className={cn("size-1.5 rounded-full shrink-0", dotColor)} />}
       <span>{label}</span>
       {count !== undefined && (
-        <span className={cn("text-[11px]", isActive ? "opacity-80" : "text-text-muted")}>
+        <span
+          className={cn(
+            "text-[11px] tabular-nums font-mono",
+            isActive ? "text-white/80" : "text-text-muted"
+          )}
+        >
           {count}
         </span>
       )}

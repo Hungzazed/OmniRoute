@@ -18,6 +18,9 @@ import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import EmptyState from "@/shared/components/EmptyState";
 import Input from "@/shared/components/Input";
+import Icon from "@/shared/components/Icon";
+import { cn } from "@/shared/utils/cn";
+import CodeSnippetBox from "../api-manager/components/CodeSnippetBox";
 
 interface TokenLedgerEntry {
   id: number;
@@ -52,6 +55,7 @@ interface ServerConnection {
 export default function TokensPage() {
   const t = useTranslations("common");
   const locale = useLocale();
+
   // Balance & History
   const [balance, setBalance] = useState(0);
   const [history, setHistory] = useState<TokenLedgerEntry[]>([]);
@@ -73,6 +77,7 @@ export default function TokensPage() {
   const [inviteLoading, setInviteLoading] = useState(false);
   const [newInviteCode, setNewInviteCode] = useState<string | null>(null);
   const [inviteError, setInviteError] = useState("");
+  const [copiedInviteId, setCopiedInviteId] = useState<string | null>(null);
 
   // Redeem
   const [redeemCode, setRedeemCode] = useState("");
@@ -88,6 +93,10 @@ export default function TokensPage() {
   const [serverApiKey, setServerApiKey] = useState("");
   const [serverLoading, setServerLoading] = useState(false);
   const [serverError, setServerError] = useState("");
+
+  // Base URL & Snippet toggle
+  const [showCurlSnippet, setShowCurlSnippet] = useState(false);
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "http://localhost:20128";
 
   const fetchData = useCallback(async () => {
     try {
@@ -205,6 +214,16 @@ export default function TokensPage() {
     }
   };
 
+  const handleCopyInviteCode = async (invite: InviteItem) => {
+    try {
+      await navigator.clipboard.writeText(invite.code);
+      setCopiedInviteId(invite.id);
+      setTimeout(() => setCopiedInviteId(null), 1800);
+    } catch {
+      // ignore
+    }
+  };
+
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault();
     setRedeemLoading(true);
@@ -304,21 +323,29 @@ export default function TokensPage() {
     <div className="flex flex-col gap-6">
       <PageHeader compact title={t("tokensPageTitle")} description={t("tokensPageDescription")} />
 
-      {/* Balance */}
-      <Card>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-text-muted">{t("tokensTokenBalance")}</p>
-            <p className="text-4xl font-bold mt-1">{balance.toLocaleString(locale)}</p>
+      {/* Balance Card — Apple Minimalist Stat Card */}
+      <Card className="border-border/40 bg-surface shadow-none">
+        <div className="flex items-center justify-between p-1">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+              {t("tokensTokenBalance")}
+            </p>
+            <p className="text-3xl font-semibold tracking-tight text-text-main tabular-nums">
+              {balance.toLocaleString(locale)}
+            </p>
           </div>
-          <div className="text-6xl opacity-20" aria-hidden="true">
-            🪙
+          <div className="size-11 rounded-xl bg-surface-muted border border-border/40 flex items-center justify-center text-text-muted">
+            <Icon name="toll" size={22} className="text-[#007AFF]" />
           </div>
         </div>
       </Card>
 
-      {/* Transfer Form */}
-      <Card title={t("tokensSendTokens")} icon="send">
+      {/* Transfer Form Card */}
+      <Card
+        title={t("tokensSendTokens")}
+        icon="send"
+        className="border-border/40 bg-surface shadow-none"
+      >
         <form onSubmit={handleTransfer} className="grid gap-4">
           <Input
             label={t("tokensRecipientApiKeyId")}
@@ -351,58 +378,98 @@ export default function TokensPage() {
             type="submit"
             variant="primary"
             disabled={transferLoading || !toApiKeyId || !amount}
-            className="justify-self-start"
+            className="justify-self-start bg-[#007AFF] text-white hover:bg-[#0071E3] rounded-lg font-medium shadow-none transition-colors border-0"
           >
             {transferLoading ? t("tokensSending") : t("tokensSendTokens")}
           </Button>
         </form>
       </Card>
 
-      {/* Transaction History */}
-      <Card title={t("tokensTransactionHistory")} icon="history">
-        {/* Kit DataTableShell owns the loading overlay; no filters/pagination on this ledger. */}
+      {/* Transaction History Card */}
+      <Card
+        title={t("tokensTransactionHistory")}
+        icon="history"
+        className="border-border/40 bg-surface shadow-none"
+      >
         <DataTableShell loading={historyLoading} loadingLabel={t("loading")}>
           {!historyLoading && history.length === 0 ? (
             <EmptyState icon="history" title={t("tokensNoTransactionsYet")} />
           ) : (
             <Table scrollbarLabel={t("tokensTransactionHistory")}>
               <TableHeader>
-                <TableRow>
-                  <TableHead>{t("type")}</TableHead>
-                  <TableHead>{t("tokensFrom")}</TableHead>
-                  <TableHead>{t("tokensTo")}</TableHead>
-                  <TableHead className="text-right">{t("tokensAmount")}</TableHead>
-                  <TableHead>{t("tokensReason")}</TableHead>
-                  <TableHead className="text-right">{t("tokensDate")}</TableHead>
+                <TableRow className="border-b border-border/40 bg-surface-muted/30">
+                  <TableHead className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    {t("type")}
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    {t("tokensFrom")}
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    {t("tokensTo")}
+                  </TableHead>
+                  <TableHead className="text-right text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    {t("tokensAmount")}
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    {t("tokensReason")}
+                  </TableHead>
+                  <TableHead className="text-right text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    {t("tokensDate")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {history.map((entry) => {
                   const isSent = entry.fromApiKeyId !== "current";
                   return (
-                    <TableRow key={entry.id}>
+                    <TableRow
+                      key={entry.id}
+                      className="hover:bg-surface-muted/40 transition-colors"
+                    >
                       <TableCell>
-                        <Badge variant={isSent ? "error" : "success"} size="sm">
+                        <Badge
+                          variant={isSent ? "error" : "success"}
+                          size="sm"
+                          className={cn(
+                            "rounded-full text-[11px] font-medium px-2 py-0.5 border",
+                            isSent
+                              ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                              : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                          )}
+                        >
                           {isSent ? t("tokensSent") : t("tokensReceived")}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm font-mono">
-                        {entry.fromApiKeyId.slice(0, 8)}...
+                      <TableCell className="max-w-48">
+                        <span className="font-mono text-xs text-text-secondary dark:text-zinc-200 bg-surface-muted/60 dark:bg-zinc-800/60 px-2 py-0.5 rounded-md border border-border/30 inline-block">
+                          {entry.fromApiKeyId.slice(0, 8)}...
+                        </span>
                       </TableCell>
-                      <TableCell className="text-sm font-mono">
-                        {entry.toApiKeyId.slice(0, 8)}...
+                      <TableCell className="max-w-48">
+                        <span className="font-mono text-xs text-text-secondary dark:text-zinc-200 bg-surface-muted/60 dark:bg-zinc-800/60 px-2 py-0.5 rounded-md border border-border/30 inline-block">
+                          {entry.toApiKeyId.slice(0, 8)}...
+                        </span>
                       </TableCell>
                       <TableCell
-                        className={`text-right font-mono ${isSent ? "text-error" : "text-success"}`}
+                        className={cn(
+                          "text-right font-mono text-xs font-semibold tabular-nums",
+                          isSent
+                            ? "text-rose-600 dark:text-rose-400"
+                            : "text-emerald-600 dark:text-emerald-400"
+                        )}
                       >
                         {isSent ? "-" : "+"}
                         {entry.amount.toLocaleString(locale)}
                       </TableCell>
-                      <TableCell className="text-sm text-text-muted">
-                        {entry.reason || "-"}
+                      <TableCell className="text-xs text-text-muted max-w-xs truncate">
+                        {entry.reason || "—"}
                       </TableCell>
-                      <TableCell className="text-right text-sm text-text-muted">
-                        {new Date(entry.createdAt).toLocaleDateString(locale)}
+                      <TableCell className="text-right text-xs text-text-muted tabular-nums whitespace-nowrap">
+                        {new Date(entry.createdAt).toLocaleDateString(locale, {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
                       </TableCell>
                     </TableRow>
                   );
@@ -413,8 +480,12 @@ export default function TokensPage() {
         </DataTableShell>
       </Card>
 
-      {/* Invite Panel */}
-      <Card title={t("tokensInviteCodes")} icon="mail">
+      {/* Invite Panel Card */}
+      <Card
+        title={t("tokensInviteCodes")}
+        icon="mail"
+        className="border-border/40 bg-surface shadow-none"
+      >
         <div className="flex flex-col gap-4">
           <div className="flex items-end gap-3">
             <Input
@@ -425,28 +496,47 @@ export default function TokensPage() {
               min="1"
               className="flex-1"
             />
-            <Button variant="primary" onClick={handleCreateInvite} disabled={inviteLoading}>
+            <Button
+              variant="primary"
+              onClick={handleCreateInvite}
+              disabled={inviteLoading}
+              className="bg-[#007AFF] text-white hover:bg-[#0071E3] rounded-lg font-medium shadow-none transition-colors border-0"
+            >
               {inviteLoading ? t("tokensCreatingInvite") : t("tokensCreateInvite")}
             </Button>
           </div>
 
           {newInviteCode && (
-            <Alert
-              variant="success"
-              dismissLabel={t("close")}
-              onDismiss={() => setNewInviteCode(null)}
-            >
-              {t("tokensInviteCreated")}:{" "}
-              <span className="font-mono font-bold">{newInviteCode}</span>
-            </Alert>
+            <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-border/50 bg-surface-muted/60">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                  <Icon name="check_circle" size={14} />
+                  {t("tokensInviteCreated")}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setNewInviteCode(null)}
+                  className="text-text-muted hover:text-text-main text-xs"
+                >
+                  {t("close")}
+                </button>
+              </div>
+              <CodeSnippetBox
+                code={newInviteCode}
+                title="Invite Code"
+                language="Invite Code"
+                copyLabel={t("copy")}
+                copiedLabel={t("copied")}
+              />
+            </div>
           )}
 
           {errorMessage(inviteError, () => setInviteError(""))}
 
-          {/* Redeem */}
+          {/* Redeem Form */}
           <form
             onSubmit={handleRedeem}
-            className="flex items-end gap-3 border-t border-border pt-4"
+            className="flex items-end gap-3 border-t border-border/40 pt-4"
           >
             <Input
               label={t("tokensRedeemCode")}
@@ -457,30 +547,56 @@ export default function TokensPage() {
               required
               className="flex-1"
             />
-            <Button type="submit" variant="secondary" disabled={redeemLoading || !redeemCode}>
+            <Button
+              type="submit"
+              variant="secondary"
+              disabled={redeemLoading || !redeemCode}
+              className="rounded-lg"
+            >
               {redeemLoading ? t("tokensRedeeming") : t("tokensRedeem")}
             </Button>
           </form>
 
           {statusMessage(redeemMsg, () => setRedeemMsg(null))}
 
-          {/* Active Invites */}
+          {/* Active Invites List */}
           {invites.length > 0 && (
-            <div className="border-t border-border pt-4">
-              <p className="text-sm text-text-muted mb-3">{t("tokensYourActiveInvites")}</p>
+            <div className="border-t border-border/40 pt-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
+                {t("tokensYourActiveInvites")}
+              </p>
               <div className="space-y-2">
                 {invites.map((inv) => (
                   <div
                     key={inv.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-surface-2 border border-border"
+                    className="flex items-center justify-between p-3 rounded-xl bg-surface-muted/40 border border-border/40 hover:bg-surface-muted/70 transition-colors"
                   >
-                    <div>
-                      <span className="font-mono font-bold">{inv.code}</span>
-                      <span className="text-xs text-text-muted ml-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-mono text-xs font-semibold text-text-main bg-surface px-2.5 py-1 rounded-md border border-border/40">
+                        {inv.code}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyInviteCode(inv)}
+                        className="p-1 rounded text-text-muted hover:text-text-main transition-colors"
+                        title={t("copy")}
+                        aria-label={t("copy")}
+                      >
+                        <Icon
+                          name={copiedInviteId === inv.id ? "check" : "content_copy"}
+                          size={13}
+                          className={copiedInviteId === inv.id ? "text-emerald-500" : ""}
+                        />
+                      </button>
+                      <span className="text-xs text-text-muted tabular-nums ml-2">
                         {t("tokensInviteUses", { used: inv.useCount, max: inv.maxUses })}
                       </span>
                       {inv.revokedAt && (
-                        <Badge variant="error" size="sm" className="ml-2">
+                        <Badge
+                          variant="error"
+                          size="sm"
+                          className="rounded-full text-[10px] px-2 py-0.5 ml-2"
+                        >
                           {t("tokensRevoked")}
                         </Badge>
                       )}
@@ -489,7 +605,7 @@ export default function TokensPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-error"
+                        className="text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 rounded-lg text-xs"
                         onClick={() => handleRevokeInvite(inv.id)}
                       >
                         {t("tokensRevoke")}
@@ -503,8 +619,12 @@ export default function TokensPage() {
         </div>
       </Card>
 
-      {/* Server Panel */}
-      <Card title={t("tokensCommunityServers")} icon="dns">
+      {/* Server Panel Card */}
+      <Card
+        title={t("tokensCommunityServers")}
+        icon="dns"
+        className="border-border/40 bg-surface shadow-none"
+      >
         <div className="flex flex-col gap-4">
           <form onSubmit={handleConnectServer} className="grid gap-3">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -537,7 +657,7 @@ export default function TokensPage() {
               type="submit"
               variant="primary"
               disabled={serverLoading || !serverName || !serverUrl || !serverApiKey}
-              className="justify-self-start"
+              className="justify-self-start bg-[#007AFF] text-white hover:bg-[#0071E3] rounded-lg font-medium shadow-none transition-colors border-0"
             >
               {serverLoading ? t("tokensConnecting") : t("tokensConnectServer")}
             </Button>
@@ -552,11 +672,21 @@ export default function TokensPage() {
               {servers.map((server) => (
                 <div
                   key={server.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-surface-2 border border-border"
+                  className="flex items-center justify-between p-3.5 rounded-xl bg-surface-muted/40 border border-border/40 hover:bg-surface-muted/70 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold truncate">{server.name}</p>
+                      <span
+                        className={cn(
+                          "size-2 rounded-full shrink-0",
+                          server.status === "connected"
+                            ? "bg-emerald-500"
+                            : server.status === "error"
+                              ? "bg-rose-500"
+                              : "bg-neutral-400"
+                        )}
+                      />
+                      <p className="font-semibold text-sm truncate text-text-main">{server.name}</p>
                       <Badge
                         size="sm"
                         variant={
@@ -566,18 +696,21 @@ export default function TokensPage() {
                               ? "error"
                               : "default"
                         }
+                        className="rounded-full text-[10px] font-medium px-2 py-0.5"
                       >
                         {t.has(`tokensServerStatus.${server.status}`)
                           ? t(`tokensServerStatus.${server.status}`)
                           : server.status}
                       </Badge>
                     </div>
-                    <p className="text-xs text-text-muted mt-1 truncate">{server.url}</p>
+                    <p className="text-xs text-text-muted mt-0.5 truncate font-mono">
+                      {server.url}
+                    </p>
                     {server.errorMessage && (
-                      <p className="text-xs text-error mt-1">{server.errorMessage}</p>
+                      <p className="text-xs text-rose-500 mt-0.5">{server.errorMessage}</p>
                     )}
                     {server.lastSyncAt && (
-                      <p className="text-xs text-text-muted mt-1">
+                      <p className="text-[11px] text-text-muted mt-0.5 tabular-nums">
                         {t("tokensLastSync", {
                           date: new Date(server.lastSyncAt).toLocaleString(locale),
                         })}
@@ -587,7 +720,7 @@ export default function TokensPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-error ml-4"
+                    className="text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 rounded-lg text-xs ml-4"
                     onClick={() => handleDisconnectServer(server.id)}
                   >
                     {t("tokensDisconnect")}
@@ -595,6 +728,44 @@ export default function TokensPage() {
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      </Card>
+
+      {/* Developer API / cURL Snippet Card */}
+      <Card padding="sm" className="border-border/40 bg-surface shadow-none">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Icon name="code" size={16} className="text-text-muted" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                Token API Integration
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowCurlSnippet(!showCurlSnippet)}
+              className="text-xs text-text-muted hover:text-text-main flex items-center gap-1 font-medium transition-colors"
+            >
+              <span>{showCurlSnippet ? t("close") : "Show API Snippet"}</span>
+              <Icon name={showCurlSnippet ? "expand_less" : "expand_more"} size={16} />
+            </button>
+          </div>
+          {showCurlSnippet && (
+            <CodeSnippetBox
+              title="cURL Token Transfer Example"
+              language="cURL"
+              copyLabel={t("copy")}
+              copiedLabel={t("copied")}
+              code={`curl -X POST ${baseUrl}/api/gamification/transfer \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "toApiKeyId": "target_api_key_id",
+    "amount": 100,
+    "reason": "Developer quota allocation"
+  }'`}
+            />
           )}
         </div>
       </Card>
