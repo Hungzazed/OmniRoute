@@ -146,6 +146,7 @@
     "react",
     "react-day-picker",
     "react-dom",
+    "react-is",
     "react-markdown",
     "react18-json-view",
     "recharts",
