@@ -258,7 +258,7 @@ export default function Header({ onOpenCommandPalette }: HeaderProps) {
     // banner landmark must stay top-level. The kit header has a fixed height, so the safe-area
     // inset (macOS Electron title bar / iOS standalone notch) is added to it, not carved out of it.
     <header
-      className="ci-sidebar-shell-header sticky top-0 z-10 bg-bg"
+      className="ci-sidebar-shell-header sticky top-0 z-10 bg-bg/80 backdrop-blur-xl border-b border-border/40 transition-colors duration-200"
       style={{ paddingTop: safeTop, height: `calc(4rem + var(--ci-border-default) + ${safeTop})` }}
     >
       <SidebarTrigger aria-label={triggerLabel}>
